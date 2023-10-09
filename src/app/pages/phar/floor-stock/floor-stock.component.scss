@@ -1,0 +1,15 @@
+.topLine {
+  border-top: 1px solid lightgray;
+}
+.lot {
+  padding: 0;
+}
+
+@media print {
+  .hideprint {
+    display: none;
+  }
+  body {
+    background: #fff !important;
+  }
+}

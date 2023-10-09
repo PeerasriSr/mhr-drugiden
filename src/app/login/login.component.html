@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="login">
+    <div class="card p-4">
+      <div class="center">
+        <div>
+          <h1>Drug Identification</h1>
+        </div>
+        <form
+          [formGroup]="loginForm"
+          (ngSubmit)="loginSubmit()"
+          style="font-size: 18px"
+        >
+          <div class="">
+            <!-- <label for="username">Username</label> -->
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              placeholder="username"
+              required
+              class="form-control"
+            />
+            <!-- <label for="password">Password</label> -->
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              placeholder="password"
+              required
+              class="form-control mt-4"
+            />
+          </div>
+          <div class="mt-4">
+            <a class="btn btn-secondary mr-2" href="#/Index"
+              ><span class="material-icons"> home </span> หน้าหลัก</a
+            >
+            <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

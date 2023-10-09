@@ -1,0 +1,92 @@
+<nav class="navbar navbar-light bg-light navbar-expand-lg ">
+  <a class="navbar-brand" href="#"><i class="fas fa-pills"></i> Drug Identification {{ deviceName }}</a>
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto" *ngIf="userName">
+      <li class="nav-item">
+        <a class="nav-link" href="#/Index" (click)="closeDropdown()"
+          >หอผู้ป่วย</a
+        >
+      </li>
+
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+        >
+          ห้องยา
+        </a>
+        <div class="dropdown-menu">
+          <a
+            class="dropdown-item"
+            href="#/Phar/CheckRequest"
+            (click)="closeDropdown()"
+            ><span class="material-icons"> find_in_page </span>
+            ตรวจสอบใบสั่งยา</a
+          >
+          <a
+            class="dropdown-item"
+            href="#/Phar/CheckRequest"
+            (click)="closeDropdown()"
+            ><span class="material-icons"> description </span>
+            รายงานการตรวจสอบ</a
+          >
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Floor Stock
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#/FloorStock" (click)="closeDropdown()"
+            ><span class="material-icons"> inventory </span> จำนวนคงเหลือ</a
+          >
+          <a class="dropdown-item" href="#/FloorStock" (click)="closeDropdown()"
+            ><span class="material-icons"> description </span> รายงานเติมยา</a
+          >
+        </div>
+      </li>
+    </ul>
+    <ul class="navbar-nav mr-auto" *ngIf="!userName"></ul>
+
+    <div *ngIf="regis && deviceLocat == 'W7' && !userName">
+      <a href="#/Login" (click)="logIn()">เข้าสู่ระบบ</a>
+    </div>
+
+    <div *ngIf="!regis">
+      <a href="#" (click)="register()">ลงทะเบียน</a>
+    </div>
+
+    <div class="dropdown" *ngIf="userName">
+      <a
+        class="dropdown-toggle pointer"
+        data-toggle="dropdown"
+        aria-expanded="false"
+        ><i class="fas fa-user"></i> {{ userName }}</a
+      >
+      <div class="dropdown-menu">
+        <a class="dropdown-item" (click)="logOut()">ออกจากระบบ</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<router-outlet></router-outlet>

@@ -1,0 +1,868 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid ">
+  <div class="card" *ngIf="!showDetail">
+    <div class="row row-top">
+      <div class="col-md-auto">
+        <h2>
+          <span class="material-icons"> find_in_page </span> ตรวจสอบใบสั่งยา
+        </h2>
+      </div>
+      <div class="col-md-auto">
+        <mat-form-field class="medError-form-field" appearance="fill">
+          <mat-label>ค้นหา : HN</mat-label>
+          <input
+            matInput
+            type="text"
+            [(ngModel)]="valueHN"
+            (keyup.enter)="HnToRequest(valueHN)"
+          />
+          <button
+            *ngIf="valueHN"
+            matSuffix
+            mat-icon-button
+            aria-label="Clear"
+            (click)="valueHN = ''; clear()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <!-- <div class="col-md-auto">
+        <span
+          class="material-icons p-2 h2 pointer"
+          (click)="valueHN = ''; clear()"
+        >
+          autorenew
+        </span>
+      </div> -->
+    </div>
+
+    <div [hidden]="listAllRequest.length === 0" class="overflow-auto">
+      <table
+        mat-table
+        [dataSource]="dataAllRequest"
+        #sortAllRequest="matSort"
+        matSort
+        matSortActive=""
+        matSortDirection="asc"
+      >
+        <!-- <ng-container matColumnDef="row_number">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>ลำดับ</th>
+              <td mat-cell *matCellDef="let element" class="">
+                {{ element.row_number }}
+              </td>
+            </ng-container> -->
+
+        <ng-container matColumnDef="note">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <span class="material-icons" *ngIf="element.status == 'wait'">
+              help_outline
+            </span>
+            <span
+              class="material-icons orange"
+              *ngIf="element.status == 'edit'"
+            >
+              history
+            </span>
+            <span class="material-icons green" *ngIf="element.status == 'done'">
+              task_alt
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="reqDate">
+          <th mat-header-cell *matHeaderCellDef>วันที่</th>
+          <td mat-cell *matCellDef="let element" class="">
+            <div class="row">
+              <div class="col" style="max-width: 120px">
+                {{ element.reqDateTh }}
+              </div>
+              <div class="col">{{ element.reqTime }}</div>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="reqType">
+          <th mat-header-cell *matHeaderCellDef>CONFIRM</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.reqType }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="reqNo">
+          <th mat-header-cell *matHeaderCellDef>ใบสั่งยา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.reqNo }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="hn">
+          <th mat-header-cell *matHeaderCellDef>HN</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.hn }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="an">
+          <th mat-header-cell *matHeaderCellDef>AN</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.an }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="firstname">
+          <th mat-header-cell *matHeaderCellDef>ชื่อ - นามสกุล</th>
+          <td mat-cell *matCellDef="let element" class="">
+            <div class="row">
+              <div class="col">
+                {{ element.titlename }}{{ element.firstname }}
+              </div>
+              <div class="col">{{ element.lastname }}</div>
+            </div>
+          </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="wardcode">
+          <th mat-header-cell *matHeaderCellDef>รหัสหอผู้ป่วย</th>
+          <td mat-cell *matCellDef="let element" class="">
+            
+          </td>
+        </ng-container> -->
+        <ng-container matColumnDef="ward_name">
+          <th mat-header-cell *matHeaderCellDef>หอผู้ป่วย</th>
+          <td mat-cell *matCellDef="let element" class="">
+            <div class="row">
+              <div class="col" style="max-width: 60px">
+                {{ element.wardcode }}
+              </div>
+              <div class="col">{{ element.ward_name }}</div>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="bedcode">
+          <th mat-header-cell *matHeaderCellDef>เตียง</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.bedcode }}
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayAllRequest; sticky: true"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayAllRequest; let element"
+          (click)="requestDetail(element)"
+          class="pointer {{
+            element.status == 'done'
+              ? 'greenBG'
+              : element.status == 'edit'
+              ? 'orangeBG'
+              : ''
+          }}"
+        >
+          >
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="showDetail">
+    <div class="row reqHead">
+      <div class="col-md-auto">
+        <!-- <p>
+          <span class="material-icons pointer edit" (click)="back()">
+            arrow_back </span
+          >รพ.มหาราชนครราชสีมา
+        </p>
+        <p>ใบเบิก-จ่าย คลังยาและเวชภัณฑ์</p> -->
+        <b
+          ><span class="material-icons pointer" (click)="back()">
+            arrow_back_ios_new
+          </span>
+          CONFIRM {{ orderRequest.reqType }}
+        </b>
+        <p>
+          เลขที่ : {{ orderRequest.reqNo }}
+          <!-- <b
+            class="{{
+              orderRequest.status == 'done'
+                ? 'green'
+                : orderRequest.status == 'edit'
+                ? 'orange'
+                : ''
+            }}"
+          >
+            ({{ reqStatus }})</b
+          > -->
+        </p>
+        <p>
+          Scr : <b>{{ Scr }}</b>
+        </p>
+        <p>
+          eGFR : <b>{{ eGFR }}</b>
+        </p>
+        <p>
+          K : <b>{{ K }}</b>
+        </p>
+      </div>
+      <div class="col-md-auto">
+        <b class="m-0">
+          ชื่อ {{ orderRequest.titlename }} {{ orderRequest.firstname }}
+          {{ orderRequest.lastname }}
+        </b>
+        <p>Drug Monitoring รายการ</p>
+        <p>อายุ {{ patientAge }} ปี</p>
+        <p>คลังจ่าย : ห้องจ่ายยา IPD7</p>
+        <p>วันที่ : {{ reqDateTh }}</p>
+      </div>
+      <div class="col-md-auto">
+        <p>AN {{ orderRequest.an }}</p>
+        <p>เพศ {{ orderRequest.sex }}</p>
+        <p>น้ำหนัก</p>
+        <p>เวลา : {{ orderRequest.reqTime }}</p>
+      </div>
+      <div class="col-md-auto">
+        <b class="m-0">
+          HN {{ orderRequest.hn }} - {{ orderRequest.registNo }}
+        </b>
+        <p>
+          <b
+            >เตียง {{ orderRequest.bedcode }} รหัสวอร์ด
+            {{ orderRequest.wardcode }}</b
+          >
+        </p>
+        <p>
+          <b>วอร์ด {{ orderRequest.ward_name }}</b>
+        </p>
+        <p>สิทธิบัตร {{ orderRequest.rightname }}</p>
+      </div>
+    </div>
+
+    <div class="overflow-auto">
+      <table
+        mat-table
+        [dataSource]="dataOrderDetail"
+        #sortOrderDetail="matSort"
+        matSort
+        matSortActive=""
+        matSortDirection="asc"
+      >
+        <ng-container matColumnDef="row_number">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            (click)="orderRequest.status !== 'done' ? checkTureAll() : ''"
+            class="pointer"
+          >
+            ลำดับ
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let element; let i = index"
+            class="numRow center"
+          >
+            <div>{{ element.row_number }}</div>
+            <div *ngIf="element.reqNo === orderRequest.reqNo">
+              <div
+                class="{{ element.CF == 1 ? 'green' : 'grey' }}"
+                (click)="orderRequest.status !== 'done' ? drugTrue(i) : ''"
+              >
+                <span class="material-icons pointer">check_circle</span>
+              </div>
+              <div
+                class="{{ element.CF == 2 ? 'red' : 'grey' }}"
+                (click)="
+                  orderRequest.status === 'wait' ? drugFalse(element) : ''
+                "
+              >
+                <span class="material-icons pointer">cancel</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="startIssDate">
+          <th mat-header-cell *matHeaderCellDef>วันเริ่มจ่ายยา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.startIssDate }}
+            <div>{{ element.reqTime }} น.</div>
+            <div *ngIf="element.medFloorStock === 'Y'">
+              <b class="orange" style="font-size: 0.875rem;">*Floor Stock</b>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="drugName">
+          <th mat-header-cell *matHeaderCellDef>รายการยา</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            class="zoom"
+            (click)="viewLab(element)"
+          >
+            <span
+              ><b>{{ element.drugName }}</b>
+            </span>
+            <div *ngFor="let lab of element.lab">
+              <span>
+                <b
+                  >{{ lab.result_name }}={{ lab.real_res }} ({{
+                    lab.thDate
+                  }})</b
+                ><br />
+              </span>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lamedText">
+          <th mat-header-cell *matHeaderCellDef>วิธีใข้_หน่วย_เวลา</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            class="zoom"
+            (click)="viewLamed(element)"
+          >
+            <!-- <span
+                matTooltip="{{ element.lamed }}
+              {{ element.lamedText1 }} 
+              {{ element.lamedText2 }} 
+              Lastlss. {{ element.lastIssDate }} Nextlss.{{
+                  element.nextIssDate
+                }} วันที่หยุด {{ element.endDate }}"
+              >
+                {{ element.lamed }} <br />
+                {{ element.lamedText1 }} <br />
+                {{ element.lamedText2 }} <br />
+                Lastlss. {{ element.lastIssDate }} Nextlss.{{
+                  element.nextIssDate
+                }}
+                วันที่หยุด {{ element.endDate }}</span
+              > -->
+            <span>
+              {{ element.lamed1 }}
+              <b
+                >{{ element.lamed2 }} {{ element.lamed3 }}
+                {{ element.lamed4 }}</b
+              ><br />
+              {{ element.lamed5 }} <br />
+
+              Lastlss. {{ element.lastIssDate }} Nextlss.
+              {{ element.nextIssDate }}
+            </span>
+            <span *ngIf="element.endDate"
+              >วันที่หยุด {{ element.endDate }}</span
+            >
+            {{ element.lamedName }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="qtyReq">
+          <th mat-header-cell *matHeaderCellDef>จำนวนจ่าย</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            <b>{{ element.qtyReq }}</b> {{ element.unit }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="u_price">
+          <th mat-header-cell *matHeaderCellDef>จำนวนเงิน</th>
+          <td mat-cell *matCellDef="let element" class="right pr-2">
+            {{ element.u_price | number : "1.2-2" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="img">
+          <th mat-header-cell *matHeaderCellDef>รูปยา</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            class="center"
+            style="vertical-align: middle"
+          >
+            <img
+              *ngIf="element.img"
+              [src]="element.img"
+              alt="รูปภาพ"
+              (click)="viewImg(element)"
+              class="zoom"
+            />
+
+            <span
+              class="material-icons"
+              style="font-size: 3.625em; color: lightgrey"
+              *ngIf="!element.img"
+            >
+              add_a_photo
+            </span>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayOrderDetail; sticky: true"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayOrderDetail; let element"
+          class="{{ element.reqNo !== orderRequest.reqNo ? 'list-con' : '' }}"
+        ></tr>
+      </table>
+    </div>
+    <div class="grid-container gridPrice">
+      <div class="grid-item">
+        <label for=""> ED = {{ ED }} บาท</label>
+        <label for="">NED = {{ NED }} บาท</label>
+        <label for="">MINE = {{ MINE }} บาท</label>
+      </div>
+      <div class="grid-item right">
+        <u>รวม = {{ total | number : "1.2-2" }} บาท</u>
+      </div>
+    </div>
+    <div class="footer">
+      <b
+        >ยาที่ off วันนี้ :
+        <label *ngIf="orderRequest.reqType === 'CONTINUE'">{{
+          drugOff
+        }}</label></b
+      >
+      <!-- <p>ติดตามเอกสาร :</p> -->
+      <b>แจ้งเตือน : {{ patientMSG }}</b>
+      <!-- <p>ยาซ้ำ :</p> -->
+      <p>แพ้ยา/โรคประจำตัว : {{ patientAller }}</p>
+      <p>
+        Drug Intx :
+        <label *ngFor="let intx of patientIntx"
+          >{{ intx.drugName2 }}{{ intx.drugName1 }}{{ intx.intxNote }}<br
+        /></label>
+      </p>
+      <div class="d-flex">
+        <p class="mr-4" *ngIf="orderRequest.editMaker">
+          ส่งแก้ไข : <u>{{ orderRequest.editMaker }}</u>
+        </p>
+        <p class="" *ngIf="orderRequest.comfirmMaker">
+          ยืนยัน : <u>{{ orderRequest.comfirmMaker }}</u>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="center  mt-2" *ngIf="showDetail">
+    <button type="button" class="btn btn-light btn-sm btns" (click)="back()">
+      <span class="material-icons"> arrow_back_ios_new </span> ย้อนกลับ
+    </button>
+    <button
+      type="button"
+      class="btn btn-light btn-sm btns ml-2"
+      data-toggle="modal"
+      data-target="#pharmacistNote"
+      *ngIf="orderRequest.status !== 'done'"
+    >
+      <span class="material-icons blue"> edit_note </span> Pharmacist Note
+    </button>
+    <button
+      type="button"
+      class="btn btn-light btn-sm btns ml-2"
+      *ngIf="arrMedError.length > 0"
+      (click)="submitError()"
+    >
+      <span class="material-icons red"> history </span> ส่งแก้ไขและบันทึก
+    </button>
+    <button
+      type="button"
+      class="btn btn-light btn-sm btns ml-2"
+      (click)="submitComplete()"
+      *ngIf="orderRequest.status !== 'done' && arrMedError.length === 0"
+    >
+      <span class="material-icons green"> task_alt </span> ตรวจสอบเสร็จสิ้น
+    </button>
+    <button
+      type="button"
+      class="btn btn-light btn-sm btns ml-2"
+      (click)="submitAgian()"
+      *ngIf="orderRequest.status === 'done'"
+    >
+      <span class="material-icons blue"> published_with_changes </span> ส่ง Floor Stock อีกครั้ง
+    </button>
+  </div>
+  <div
+    class="modal fade"
+    id="medErrorModal"
+    tabindex="-1"
+    aria-labelledby="medErrorModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="container-fluid">
+          <form (ngSubmit)="errorSubmit()">
+            <div class="modal-header p-0">
+              <h2 class="modal-title m-0" id="medErrorModalLabel">Med Error</h2>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body p-0 medError">
+              <h3 class="pt-2 mb-2">Prescribing</h3>
+              <div class="grid-container gridMedError">
+                <div class="grid-item">
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>ชนิด PE</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPEtype"
+                        name="peType"
+                        (selectionChange)="selectPEtype($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PE_type"
+                          [value]="x.typeCode"
+                        >
+                          {{ x.typeCode }} - {{ x.typeName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>ผู้ปฏิบัติ</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPEoper"
+                        name="peOper"
+                        (selectionChange)="selectPEoper($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PE_oper"
+                          [value]="x.operCode"
+                        >
+                          {{ x.operCode }} - {{ x.operName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>Severity</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPEseve"
+                        name="peSeve"
+                        (selectionChange)="selectPEseve($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PE_seve"
+                          [value]="x.seCode"
+                        >
+                          {{ x.seCode }} - {{ x.seName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="grid-item">
+                  <div class="errorNot">
+                    <div class="flex">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          [(ngModel)]="formPE.name"
+                          name="nameErr"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="flex nextNote">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          [(ngModel)]="formPE.use"
+                          name="useErr"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="flex nextNote">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [(ngModel)]="formPE.qty"
+                          name="qryErr"
+                        />
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 class="mb-2">Pre-Dispensing</h3>
+              <div class="grid-container gridMedError">
+                <div class="grid-item">
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>บุคลากร</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPDpers"
+                        name="pdPers"
+                        (selectionChange)="selectPDpers($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PD_pers"
+                          [value]="x.perCode"
+                        >
+                          {{ x.perCode }} - {{ x.perName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label
+                        >การทำงานเป็นทีม หรือเงื่อนไขการทำงาน</mat-label
+                      >
+                      <mat-select
+                        [(ngModel)]="setPDcond"
+                        name="pdCond"
+                        (selectionChange)="selectPDcond($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PD_cond"
+                          [value]="x.conCode"
+                        >
+                          {{ x.conCode }} - {{ x.conName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>กระบวนการทำงาน /ระบบ</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPDproc"
+                        name="pdProc"
+                        (selectionChange)="selectPDproc($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PD_proc"
+                          [value]="x.proCode"
+                        >
+                          {{ x.proCode }} - {{ x.proName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="flex">
+                    <mat-form-field appearance="fill" class="custom-mat-field">
+                      <mat-label>PRODUCT</mat-label>
+                      <mat-select
+                        [(ngModel)]="setPDprod"
+                        name="pdProc"
+                        (selectionChange)="selectPDprod($event)"
+                      >
+                        <mat-option
+                          *ngFor="let x of PD_prod"
+                          [value]="x.proCode"
+                        >
+                          {{ x.proCode }} - {{ x.proName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="grid-item">
+                  <div class="errorNot">
+                    <div style="height: 4.2rem">&nbsp;</div>
+                    <div class="flex">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          [(ngModel)]="formPD.cond_note"
+                          name="cond_note"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="flex nextNote">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          [(ngModel)]="formPD.proc_note"
+                          name="proc_note"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="flex nextNote">
+                      <mat-form-field class="custom-mat-field">
+                        <mat-label>ระบุ :</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          [(ngModel)]="formPD.prod_note"
+                          name="prod_note"
+                        />
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-dismiss="modal"
+              >
+                ยกเลิก
+              </button>
+              <button type="submit" class="btn btn-primary btn-sm">
+                บันทึก
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="pharmacistNote"
+    data-backdrop="static"
+    data-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="pharmacistNoteLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="container-fluid">
+          <div class="modal-header">
+            <h2 class="modal-title m-0" id="pharmacistNoteLabel">
+              Pharmacist Note
+            </h2>
+
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body p-0" *ngIf="showDetail">
+            <div id="headPrint">
+              <div class="mt-2">
+                <p>
+                  ชื่อผู้ป่วย
+                  <u
+                    >{{ orderRequest.titlename }} {{ orderRequest.firstname }}
+                    {{ orderRequest.lastname }}</u
+                  >
+                  HN <u>{{ orderRequest.hn }}</u> วันที่
+                  <u>{{ currentDate }}</u>
+                </p>
+              </div>
+              <div>
+                <p>
+                  เรียน แพทย์/พยาบาล Inchange หอผู้ป่วย
+                  <u>{{ orderRequest.ward_name }}</u>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <!-- <section class="example-section">
+              <div class="pn_typer">
+                <b><u>เนื่องจากยา</u></b>
+              </div>
+
+              <p *ngFor="let x of listDrugPN" class="pn_p">
+                <mat-checkbox [color]="'warn'" (click)="checkDrug(x)"
+                  >{{ x.drugName }}
+                </mat-checkbox>
+              </p>
+            </section> -->
+
+              <mat-form-field appearance="fill" class="custom-mat-field">
+                <mat-label>เนื่องจากยา</mat-label>
+                <mat-select
+                  name="listDrugPN"
+                  (selectionChange)="checkDrug($event)"
+                >
+                  <mat-option *ngFor="let x of listDrugPN" [value]="x">
+                    {{ x.drugName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="pn_head">
+              <section class="example-section">
+                <div class="pn_typer">
+                  <b><u>คำสั่งใช้ยา</u></b>
+                </div>
+                <p *ngFor="let x of PN_prescription" class="pn_p">
+                  <mat-checkbox [color]="'warn'" (click)="checkPN(x, 0)"
+                    >{{ x.name1 }} <u>{{ x.note }}</u>
+                    {{ x.name2 }}</mat-checkbox
+                  >
+                </p>
+              </section>
+            </div>
+            <div class="pn_head">
+              <section class="example-section">
+                <div class="pn_typer">
+                  <b><u>เอกสารประกอบการสั่งใช้ยา</u></b>
+                </div>
+
+                <p *ngFor="let x of PN_docc" class="pn_p">
+                  <mat-checkbox [color]="'warn'" (click)="checkPN(x, 1)"
+                    >{{ x.name1 }} <u>{{ x.note }}</u>
+                    {{ x.name2 }}</mat-checkbox
+                  >
+                </p>
+              </section>
+            </div>
+            <div class="pn_head">
+              <section class="example-section">
+                <div class="pn_typer">
+                  <b><u>ยาเดิมผู้ป่วย</u></b>
+                </div>
+
+                <p *ngFor="let x of PN_previous" class="pn_p">
+                  <mat-checkbox [color]="'warn'" (click)="checkPN(x, 2)"
+                    >{{ x.name1 }} <u>{{ x.note }}</u>
+                    {{ x.name2 }}</mat-checkbox
+                  >
+                </p>
+              </section>
+            </div>
+            <div class="pn_head" id="footPrint">
+              <p class="pn_p">
+                เภสัชกร <u>{{ userName }}</u> {{ wardName }} โทร
+                <u>{{ wardPhone }}</u>
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              data-dismiss="modal"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="submitPN()"
+            >
+              บันทึกและพิมพ์
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

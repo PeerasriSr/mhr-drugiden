@@ -1,0 +1,305 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid">
+  <div class="card" *ngIf="!showDetail">
+    <div class="">
+      <div class="row row-top">
+        <div class="col-md-auto">
+          <form [formGroup]="campaign">
+            <mat-form-field style="padding-top: 0.9em">
+              <mat-label>เลือกวัน</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                formControlName="picker"
+                (dateChange)="dateChange($event)"
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </form>
+        </div>
+        <div class="col-md-auto">
+          <mat-form-field appearance="fill">
+            <mat-label>เลือกหอผู้ป่วย</mat-label>
+            <mat-select (selectionChange)="selectWard($event)">
+              <mat-option *ngFor="let x of listWard" [value]="x.ward_id">
+                {{ x.ward_id }} - {{ x.ward_name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-md-auto">
+          <button
+            type="button"
+            class="btn btn-light btns"
+            (click)="submitSearch()"
+          >
+            <i class="fas fa-search blue"></i> ค้นหา
+          </button>
+        </div>
+        <div class="col-md-auto">
+          <mat-form-field
+            style="padding-top: 0.9em"
+            [hidden]="listOrderWard.length < 1"
+          >
+            <input matInput (keyup)="oderFilter($event)" #input />
+            <mat-placeholder>ค้นหา : </mat-placeholder>
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <div [hidden]="listOrderWard.length < 1" class="overflow-auto">
+      <table
+        mat-table
+        [dataSource]="dataOrderWard"
+        #sortOrderWard="matSort"
+        matSort
+        matSortActive=""
+        matSortDirection="asc"
+      >
+        <!-- <ng-container matColumnDef="row_number">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ลำดับ</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.row_number }}
+          </td>
+        </ng-container> -->
+        <ng-container matColumnDef="reqDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>เวลา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.reqTime }} น.
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="reqNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ใบสั่งยา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.reqNo }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="hn">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>HN</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.hn }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="an">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>AN</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.an }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="firstname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            ชื่อ - นามสกุล
+          </th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.titlename }}
+            {{ element.firstname }}
+            {{ element.lastname }}
+          </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="wardcode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            รหัสหอผู้ป่วย
+          </th>
+          <td mat-cell *matCellDef="let element" class="center">
+            {{ element.wardcode }}
+          </td>
+        </ng-container> -->
+        <ng-container matColumnDef="ward_name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>หอผู้ป่วย</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.wardcode }} - {{ element.ward_name }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="bedcode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>เตียง</th>
+          <td mat-cell *matCellDef="let element" class="center">
+            {{ element.bedcode }}
+          </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="note">
+          <th mat-header-cell *matHeaderCellDef>ดูประวัติ</th>
+          <td mat-cell *matCellDef="let element" class="center">
+            <span class="material-icons edit" (click)="viewDetail(element)">
+              find_in_page
+            </span>
+          </td>
+        </ng-container> -->
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayOrderWard; sticky: true"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayOrderWard; let element"
+          (click)="viewDetail(element)"
+          class="pointer"
+        ></tr>
+      </table>
+
+      <mat-paginator
+        #paginOrderWard="matPaginator"
+        style="display: flex; justify-content: center"
+        [length]="10"
+        [pageSize]="10"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+      >
+      </mat-paginator>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="showDetail">
+    <div class="row">
+      <div
+        class="col ml-1 mr-1"
+        style="
+          max-width: 400px;
+          background-color: lightgrey;
+          border-radius: 10px;
+        "
+      >
+        <h2>
+          <span class="material-icons pointer" (click)="back()">
+            arrow_back
+          </span>
+          ข้อมูลผู้ป่วย
+        </h2>
+        <div class="center">
+          <span
+            class="material-icons"
+            style="font-size: 10em; color: white; margin-bottom: 16px"
+          >
+            assignment_ind
+          </span>
+        </div>
+        <div class="grid-container gridPatient">
+          <div class="grid-item">
+            <div class="titlePatient">
+              <p>HN</p>
+              <p>AN</p>
+              <p>ชื่อ - สกุล</p>
+              <p>เตียง</p>
+              <p>แพ้ยา</p>
+              <p>วันที่</p>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="dataPatient">
+              <p>{{ patientHN }}</p>
+              <p>{{ patientAN }}</p>
+              <p>
+                {{ patientNM }}
+              </p>
+              <p *ngIf="patientBed > 0">{{ patientBed }}</p>
+              <p *ngIf="patientBed < 1">&nbsp;</p>
+              <p>{{ patientAller }}</p>
+              <p>{{ reqDate }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <h2 class="m-2">
+          ใบสั่งยาเลขที่
+          {{ reqNo }}
+        </h2>
+        <div class="overflow-auto">
+          <table
+            mat-table
+            [dataSource]="dataOrderDetail"
+            #sortOrderDetail="matSort"
+            matSort
+            matSortActive=""
+            matSortDirection="asc"
+          >
+            <ng-container matColumnDef="row_number">
+              <th mat-header-cell *matHeaderCellDef>ลำดับ</th>
+              <td mat-cell *matCellDef="let element" class="numRow">
+                {{ element.row_number }}
+              </td>
+            </ng-container>
+
+            <!-- <ng-container matColumnDef="startIssDate">
+                <th mat-header-cell *matHeaderCellDef>วันเริ่มจ่ายยา</th>
+                <td mat-cell *matCellDef="let element" class="">
+                  {{ element.startIssDate }}
+                </td>
+              </ng-container> -->
+            <ng-container matColumnDef="orderitemname">
+              <th mat-header-cell *matHeaderCellDef>รายการยา</th>
+              <td mat-cell *matCellDef="let element" class="">
+                {{ element.orderitemname }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lamedText">
+              <th mat-header-cell *matHeaderCellDef>วิธีใข้</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="textlong">
+                  {{ element.lamed1 }}
+                  {{ element.lamed2 }}
+                  {{ element.lamed3 }}
+                  {{ element.lamed4 }}
+                  {{ element.lamed5 }}
+                </div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="qtyReq">
+              <th mat-header-cell *matHeaderCellDef>จำนวนจ่าย</th>
+              <td mat-cell *matCellDef="let element" class="right">
+                <b>{{ element.qtyReq }}</b> {{ element.unit }}
+              </td>
+            </ng-container>
+            <!-- <ng-container matColumnDef="uPrice">
+                <th mat-header-cell *matHeaderCellDef>จำนวนเงิน</th>
+                <td mat-cell *matCellDef="let element" class="right pr-2">
+                  {{ element.qtyReq * element.uPrice | number : "1.2-2" }}
+                </td>
+              </ng-container> -->
+
+            <ng-container matColumnDef="img">
+              <th mat-header-cell *matHeaderCellDef>รูปยา</th>
+              <td mat-cell *matCellDef="let element" class="center">
+                <img
+                  *ngIf="element.img"
+                  [src]="element.img"
+                  alt="รูปภาพ"
+                  (click)="viewImg(element)"
+                  class="pointer"
+                />
+
+                <span
+                  class="material-icons"
+                  style="font-size: 3.625rem; color: lightgrey"
+                  *ngIf="!element.img"
+                >
+                  add_a_photo
+                </span>
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="displayOrderDetail; sticky: true"
+            ></tr>
+            <tr mat-row *matRowDef="let row; columns: displayOrderDetail"></tr>
+          </table>
+          <mat-paginator
+            #paginOrderDetail="matPaginator"
+            style="display: flex; justify-content: center"
+            [length]="5"
+            [pageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]"
+            showFirstLastButtons
+          >
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

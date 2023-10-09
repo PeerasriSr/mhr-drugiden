@@ -1,0 +1,719 @@
+<ngx-spinner type="timer"></ngx-spinner>
+
+<div class="container-fluid" *ngIf="show === 1">
+  <div class="card">
+    <div class="row row-top">
+      <div class="col-md-auto">
+        <h2><span class="material-icons"> inventory </span> จำนวนคงเหลือ</h2>
+      </div>
+      <div class="col-md-auto">
+        <mat-form-field appearance="fill" class="custom-mat-field">
+          <mat-label>เลือกตำแหน่ง Med Dispen</mat-label>
+          <mat-select name="msBox" (selectionChange)="selectMsBox($event)">
+            <mat-option *ngFor="let x of listMaBox" [value]="x">
+              {{ x.shelfname }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-auto">
+        <div [hidden]="!showDispenStockt" class="ml-2">
+          <mat-form-field style="padding-top: 0.9em">
+            <input matInput (keyup)="findDrugStock($event)" #input />
+            <mat-placeholder>ค้นหายา : </mat-placeholder>
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col right">
+        <button
+          type="button"
+          class="btn btn-light btns"
+          (click)="showRefillH()"
+          [hidden]="!showDispenStockt"
+        >
+          <span class="material-icons blue"> description </span> รายการเติมยา
+        </button>
+      </div>
+    </div>
+
+    <!-- <div class="grid-container gridHead">
+      <div class="grid-item">
+       
+      </div>
+      <div class="grid-item">
+       
+      </div>
+      <div class="grid-item">
+        
+      </div>
+      <div class="grid-item">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="showRefillH()"
+          [hidden]="!showDispenStockt"
+        >
+          <span class="material-icons"> post_add </span>ดูรายการเติมยา
+        </button>
+      </div>
+    </div> -->
+
+    <!-- <div class="grid-container grid-top">
+      <div class="grid-item">
+        
+      </div>
+      <div class="grid-item">
+        
+      </div>
+      <div class="grid-item">
+        
+      </div>
+    </div> -->
+
+    <div [hidden]="!showDispenStockt" class="overflow-auto">
+      <table
+        mat-table
+        [dataSource]="dataDispenStockt"
+        #sortDispenStockt="matSort"
+        matSort
+        class="table-bordered"
+        matSortActive=""
+        matSortDirection="asc"
+      >
+        <ng-container matColumnDef="binID">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ตำแหน่ง</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.binID }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="DrugNm">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ชื่อยา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.DrugNm }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Exp">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Lot./Exp./จำนวน
+          </th>
+          <td mat-cell *matCellDef="let element" class="">
+            <div class="row">
+              <div class="col lot">
+                <div
+                  *ngFor="let LotNo of element.LotNo; let x = index"
+                  class="{{ x > 0 ? 'topLine' : '' }}"
+                >
+                  {{ LotNo }}
+                </div>
+              </div>
+              <div class="col lot">
+                <div
+                  *ngFor="let Exp of element.Exp; let x = index"
+                  class="{{ x > 0 ? 'topLine' : '' }}"
+                >
+                  {{ Exp }}
+                </div>
+              </div>
+              <div class="col lot">
+                <div
+                  *ngFor="let In_Qty of element.In_Qty; let x = index"
+                  class="right {{ x > 0 ? 'topLine' : '' }}"
+                >
+                  {{ In_Qty }}
+                </div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="LotNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Lot No</th>
+          <td mat-cell *matCellDef="let element" class="nonePad">
+            <div *ngFor="let LotNo of element.LotNo; let x = index">
+              <div class="{{ x > 0 ? 'topLine' : '' }}">&nbsp;{{ LotNo }}</div>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Exp">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Exp.</th>
+          <td mat-cell *matCellDef="let element" class="nonePad">
+            <div *ngFor="let Exp of element.Exp; let x = index">
+              <div class="{{ x > 0 ? 'topLine' : '' }}">{{ Exp }}</div>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="In_Qty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวน</th>
+          <td mat-cell *matCellDef="let element" class="right nonePad">
+            <div *ngFor="let In_Qty of element.In_Qty; let x = index">
+              <div class="{{ x > 0 ? 'topLine' : '' }}">{{ In_Qty }}&nbsp;</div>
+            </div>
+          </td>
+        </ng-container> -->
+        <ng-container matColumnDef="SumLotQty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>คงเหลือรวม</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            <b>{{ element.SumLotQty }}</b>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Max">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Max</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            {{ element.Max }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Min">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Min</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            {{ element.Min }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Refill">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Refill</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            {{ element.Refill }}
+            <span
+              class="material-icons pointer blue"
+              (click)="selectDrugRefill(element)"
+            >
+              add_circle_outline
+            </span>
+          </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="addRefill">
+          <th mat-header-cell *matHeaderCellDef>เติมยา</th>
+          <td mat-cell *matCellDef="let element" class="center">
+            <span
+              class="material-icons edit"
+              (click)="selectDrugRefill(element)"
+            >
+              add_circle_outline
+            </span>
+          </td>
+        </ng-container> -->
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayDispenStockt; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: displayDispenStockt"></tr>
+      </table>
+    </div>
+
+    <div [hidden]="!showDispenStockt">
+      <mat-paginator
+        #paginDispenStockt="matPaginator"
+        style="display: flex; justify-content: center"
+        [length]="10"
+        [pageSize]="10"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+      >
+      </mat-paginator>
+    </div>
+  </div>
+
+  <div class="card mt-2" [hidden]="ListRefill.length === 0">
+    <div class="center"><h2>สร้างรายการเติมยา</h2></div>
+
+    <div class="print overflow-auto">
+      <table
+        mat-table
+        [dataSource]="dataRefill"
+        #sortRefill="matSort"
+        matSort
+        class=""
+        matSortActive=""
+        matSortDirection="desc"
+        id="refillTable"
+      >
+        <!-- <ng-container matColumnDef="rowNum">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>rowNum</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.rowNum + 1 }}
+          </td>
+        </ng-container> -->
+        <ng-container matColumnDef="qrCode">
+          <th mat-header-cell *matHeaderCellDef>qrCode</th>
+          <td mat-cell *matCellDef="let element" class="center">
+            <qrcode
+              [qrdata]="element.qrCode"
+              [width]="120"
+              [errorCorrectionLevel]="'M'"
+            ></qrcode>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="DrugNm">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ชื่อยา</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.DrugNm }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Lotno">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Lot No</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.Lotno }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Exp">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Exp.</th>
+          <td mat-cell *matCellDef="let element" class="">
+            {{ element.Exp }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="Refill">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Refill</th>
+          <td mat-cell *matCellDef="let element" class="right">
+            {{ element.Refill }}
+            <span class="material-icons del" (click)="removeRefill(element)">
+              remove_circle_outline
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="del">
+            <th mat-header-cell *matHeaderCellDef>ลบ</th>
+            <td mat-cell *matCellDef="let element" class="center">
+              <span class="material-icons del" (click)="removeRefill(element)">
+                remove_circle_outline
+              </span>
+            </td>
+          </ng-container> -->
+        <tr mat-header-row *matHeaderRowDef="displayRefill; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayRefill; let element"
+        ></tr>
+      </table>
+    </div>
+
+    <div class="right pt-2">
+      <button
+        type="button"
+        class="btn btn-light btns"
+        (click)="submitRefill(1)"
+      >
+        <span class="material-icons blue"> save </span> บันทึก
+      </button>
+      <button
+        type="button"
+        class="btn btn-light btns ml-2"
+        (click)="submitRefill(2)"
+      >
+        <span class="material-icons blue"> print </span> บันทึกและพิมพ์
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="arlertRefill"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="arlertRefillLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title m-0" id="arlertRefillLabel">
+          แจ้งเตือน รายการยาที่ต้องเติม
+        </h2>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="printAlert overflow-auto">
+          <table
+            mat-table
+            [dataSource]="dataAlertRefill"
+            #sortAlertRefill="matSort"
+            matSort
+            class="table"
+            matSortActive=""
+            matSortDirection="asc"
+            id="alertTable"
+            style="border-collapse: collapse"
+          >
+            <ng-container matColumnDef="shelfname">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                ตู้
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black"
+              >
+                {{ element.shelfname }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="DrugNm">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                ชื่อยา
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black"
+              >
+                {{ element.DrugNm }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="Max">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                Max
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black; text-align: right"
+              >
+                {{ element.Max }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="Min">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                Min
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black; text-align: right"
+              >
+                {{ element.Min }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="SumLotQty">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                คงเหลือรวม
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black; text-align: right"
+              >
+                {{ element.SumLotQty }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="Refill">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                style="border: 1px solid black"
+              >
+                Refill
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class=""
+                style="border: 1px solid black; text-align: right"
+              >
+                {{ element.Refill }}
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="displayAlertRefill; sticky: true"
+            ></tr>
+            <tr mat-row *matRowDef="let row; columns: displayAlertRefill"></tr>
+          </table>
+        </div>
+        <div>
+          <mat-paginator
+            #paginAlertRefillt="matPaginator"
+            style="display: flex; justify-content: center"
+            [length]="10"
+            [pageSize]="10"
+            [pageSizeOptions]="[10, 25, 50]"
+            showFirstLastButtons
+          >
+          </mat-paginator>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          ปิด
+        </button>
+        <button type="button" class="btn btn-primary" (click)="printAlert()">
+          พิมพ์
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="addRefill"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="addRefillLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title m-0" id="addRefillLabel">กรอกข้อมูลยา</h2>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="clear()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="flex">
+          <mat-form-field class="custom-mat-field">
+            <mat-label>ชื่อยา</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="fromRefill.DrugNm"
+              name="DrugNm"
+              readonly
+            />
+          </mat-form-field>
+        </div>
+        <mat-form-field class="custom-mat-field">
+          <mat-label>Lot No</mat-label>
+          <input
+            matInput
+            type="text"
+            [(ngModel)]="fromRefill.Lotno"
+            name="Lotno"
+            required
+            aria-required="true"
+          />
+        </mat-form-field>
+
+        <div class="flex">
+          <mat-form-field class="custom-mat-field">
+            <mat-label>Exp. วัน-เดือน-ปี</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="fromRefill.Exp"
+              name="Exp"
+              required
+              aria-required="true"
+              mask="00-00-0000"
+            />
+          </mat-form-field>
+        </div>
+        <div class="flex">
+          <mat-form-field class="custom-mat-field">
+            <mat-label>Refill</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="fromRefill.Refill"
+              name="Refill"
+              required
+              aria-required="true"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          ปิด
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="submitAddRefill()"
+        >
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid" *ngIf="show === 2">
+  <div style="">
+    <div class="row row-top">
+      <div class="col">
+        <!-- <mat-form-field appearance="fill" class="custom-mat-field">
+            <mat-label>รายการเติมยา</mat-label>
+            <mat-select name="pdPers" (selectionChange)="selectRefNo($event)">
+              <mat-option *ngFor="let x of RefillH" [value]="x.refNo">
+                {{ x.refillDate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> -->
+
+        <p>
+          <span class="material-icons pointer mr-2" (click)="showStock()">
+            arrow_back_ios_new
+          </span>
+          รายการเติมยา
+        </p>
+
+        <!-- <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="showStock()"
+          >
+            <span class="material-icons"> reply </span>ย้อนกลับ
+          </button> -->
+      </div>
+      <div class="col center">
+        <h2>{{ shelfname }}</h2>
+      </div>
+      <div class="col">
+        <select
+          class="form-control"
+          id="exampleFormControlSelect"
+          (change)="selectRefNo($event)"
+          style="border: 0px solid #ced4da"
+        >
+          <!-- <option selected></option> -->
+          <option *ngFor="let x of RefillH" [value]="x.refNo">
+            {{ x.refillDate }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div [hidden]="ListRefill.length < 1">
+      <mat-grid-list cols="2" rowHeight="2:1">
+        <div *ngFor="let x of ListRefill">
+          <mat-grid-tile style="text-align: center; vertical-align: middle">
+            <div class="grid-tile-content">
+              <div class="qrcode">
+                <qrcode
+                  [qrdata]="x.qrCode"
+                  [width]="200"
+                  [errorCorrectionLevel]="'M'"
+                  (click)="viewQR(x)"
+                  class="pointer"
+                  style="height: 200px;"
+                ></qrcode>
+              </div>
+              <div class="drug-name">
+                {{ x.DrugNm }}
+              </div>
+              <div class="drug-Lot">
+                Lot.{{ x.Lotno }} Exp.{{ x.Exp }} จำนวน = {{ x.Refill }}
+              </div>
+            </div>
+          </mat-grid-tile>
+        </div>
+      </mat-grid-list>
+
+      <!-- <div class="print overflow-auto">
+        <table
+          mat-table
+          [dataSource]="dataRefill"
+          #sortRefill="matSort"
+          matSort
+          class=""
+          matSortActive=""
+          matSortDirection="desc"
+          id="refillTable"
+        >
+          <ng-container matColumnDef="qrCode">
+            <th mat-header-cell *matHeaderCellDef>qrCode</th>
+            <td mat-cell *matCellDef="let element" class="center">
+              <qrcode
+                [qrdata]="element.qrCode"
+                [imageHeight]="120"
+                [errorCorrectionLevel]="'M'"
+                (click)="viewQR(element)"
+                class="pointer"
+              ></qrcode>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DrugNm">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ชื่อยา</th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.DrugNm }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="Lotno">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Lot No</th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.Lotno }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="Exp">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Exp.</th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.Exp | slice : 8 : 10 }}-
+              {{ element.Exp | slice : 5 : 7 }}-
+              {{ element.Exp | slice : 0 : 4 }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="Refill">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Refill</th>
+            <td mat-cell *matCellDef="let element" class="right">
+              {{ element.Refill }}
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayRefill; sticky: true"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayRefill; let element"
+          ></tr>
+        </table>
+      </div> -->
+      <div class="right p-2 hideprint">
+        <button type="button" class="btn btn-light btns" (click)="printPage()">
+          <span class="material-icons blue"> print </span> พิมพ์
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

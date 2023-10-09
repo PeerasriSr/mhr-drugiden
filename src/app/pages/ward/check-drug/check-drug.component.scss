@@ -1,0 +1,42 @@
+.mat-form-field {
+  margin-right: 16px;
+}
+
+.d-flex {
+  // text-align: center;
+}
+
+.gridDetail {
+  height: 100%;
+  display: grid;
+  // column-gap: 8px;
+  grid-template-columns: 25% auto;
+  // padding: 10px;
+}
+
+.gridPatient {
+  height: 100%;
+  display: grid;
+  // column-gap: 8px;
+  grid-template-columns: 25% auto;
+  // padding: 10px;
+  p {
+    font-size: 16px;
+  }
+}
+
+.itemDetail {
+  // border: 1px solid grey;
+  border-style: ridge;
+}
+
+.titlePatient {
+  p {
+  }
+}
+.dataPatient {
+  p {
+    background-color: whitesmoke;
+    border-radius: 5px;
+  }
+}

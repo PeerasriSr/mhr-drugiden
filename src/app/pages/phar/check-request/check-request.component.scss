@@ -1,0 +1,105 @@
+.reqHead {
+  p {
+    margin-bottom: 4px;
+  }
+}
+
+.example-form-field {
+  width: 12.5rem;
+}
+
+.gridRequest {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  // grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  column-gap: 0.125rem;
+  p {
+    margin-bottom: 0.125rem;
+  }
+}
+
+.gridPrice {
+  display: grid;
+  grid-template-columns: auto auto;
+  padding: 0.125rem;
+  // border-top: 1px solid lightgray;
+  font-weight: bold;
+  label {
+    margin-right: 16px;
+    margin-bottom: 0;
+  }
+}
+
+.gridFooter {
+  display: grid;
+  grid-template-columns: auto auto;
+  p {
+    padding: 0;
+  }
+}
+
+.footer p {
+  margin-bottom: 0.125rem;
+}
+
+.gridMedError {
+  display: grid;
+  column-gap: 0.5rem;
+  grid-template-columns: auto auto;
+  padding: 0rem;
+}
+
+.footer {
+  padding-top: 0.125rem;
+  border-top: 1px solid lightgray;
+}
+
+.numRow .row-number {
+  margin-left: 0.125rem;
+}
+
+// .check span {
+//   font-size: 16px;
+//   cursor: pointer;
+// }
+
+.custom-mat-field {
+  width: 100%; /* Adjust the width as needed */
+}
+
+img {
+  max-height: 3.625rem;
+  max-width: 3.625rem;
+}
+
+.top td.mat-cell {
+  vertical-align: top;
+}
+
+.PN_note .mat-typography p {
+  margin: 0 0 4px !important;
+}
+
+.pn_typer {
+  margin: 0.5rem 0;
+}
+
+.pn_head {
+  border-top: 1px solid lightgray;
+}
+
+.pn_p {
+  margin: 0 0 0;
+}
+
+.list-con {
+  .mat-cell{
+   color: gray !important;
+  }
+ 
+  background-color: whitesmoke;
+}
+
+.col {
+  padding: 0px 4px !important;
+}
