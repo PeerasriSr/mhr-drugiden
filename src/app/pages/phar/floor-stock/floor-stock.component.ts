@@ -7,8 +7,21 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import * as moment from 'moment';
 import Swal from 'sweetalert2';
 import * as QRCodeGenerator from 'qrcode-generator';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 const _window: any = window;
+
+interface GroupedItem {
+  binID: string;
+  DrugCd: string;
+  DrugNm: string;
+  SumLotQty: number;
+  Fix: number;
+  Min: number;
+  Refill: number;
+  numLot: number[];
+  Lot: { [key: number]: { LotNo: string; Exp: string; In_Qty: number } };
+}
 
 @Component({
   selector: 'app-floor-stock',
@@ -28,6 +41,15 @@ export class FloorStockComponent implements OnInit {
   listMaBox: Array<any> = [];
   shelfname: any;
 
+  dataDrug: any;
+  formDrug = new FormGroup({
+    LotNo: new FormControl('', [Validators.required]),
+    Exp: new FormControl('', [Validators.required]),
+    oldQty: new FormControl('', [Validators.required]),
+    newQty: new FormControl('', [Validators.required]),
+    SumLotQty: new FormControl('', [Validators.required]),
+  });
+
   listAlertRefill: Array<any> = [];
   dataAlertRefill: any;
   @ViewChild('sortAlertRefill') sortAlertRefill!: MatSort;
@@ -35,7 +57,7 @@ export class FloorStockComponent implements OnInit {
   displayAlertRefill: string[] = [
     'shelfname',
     'DrugNm',
-    'Max',
+    'Fix',
     'Min',
     'SumLotQty',
     'Refill',
@@ -49,11 +71,12 @@ export class FloorStockComponent implements OnInit {
   displayDispenStockt: string[] = [
     'binID',
     'DrugNm',
+    'LotNo',
     // 'LotNo',
-    'Exp',
+    // 'Exp',
     // 'In_Qty',
     'SumLotQty',
-    'Max',
+    'Fix',
     'Min',
     'Refill',
     // 'addRefill',
@@ -67,9 +90,9 @@ export class FloorStockComponent implements OnInit {
     // 'rowNum',
     'qrCode',
     'DrugNm',
-    'Lotno',
-    'Exp',
-    'Refill',
+    'action',
+    // 'Exp',
+    // 'Refill',
     // 'del',
   ];
   fromRefill = {
@@ -139,13 +162,16 @@ export class FloorStockComponent implements OnInit {
   selectMsBox(e: any) {
     // console.log(e);
     this.shelfname = e.value.shelfname;
+    this.positionid = e.value.positionid;
+    this.positionid ? this.getmedDispenStock() : '';
+  }
+
+  getmedDispenStock() {
+    this.spinner.show();
     this.listDispenStockt = [];
     this.dataDispenStockt = [];
     this.ListRefill = [];
-    this.spinner.show();
     this.showDispenStockt = false;
-    this.spinner.show();
-    this.positionid = e.value.positionid;
     let key = new FormData();
     key.append('positionid', this.positionid);
     this.services.post('DrugIden/medDispenStock', key).then((value: any) => {
@@ -154,53 +180,58 @@ export class FloorStockComponent implements OnInit {
         if (value.rowCount > 0) {
           let arr: Array<any> = [];
           arr = value.result;
-          // this.listDispenStockt.push(arr[0]);
-          arr.forEach((arr) => {
-            let LotNo = [];
-            LotNo.push(arr.LotNo);
-            arr.LotNo = LotNo;
-            let Exp = [];
-            Exp.push(arr.Exp);
-            arr.Exp = Exp;
-            let In_Qty = [];
-            In_Qty.push(arr.In_Qty);
-            arr.In_Qty = In_Qty;
 
-            let x = null;
-            if (this.listDispenStockt) {
-              this.listDispenStockt.forEach((list, i) => {
-                if (list.binID === arr.binID) {
-                  x = i;
-                  // console.log(i);
-                }
-              });
-            }
-            if (x !== null) {
-              // LotNo.push(arr.LotNo)
-              let LotNo = [];
-              LotNo.push(this.listDispenStockt[x]['LotNo']);
-              LotNo.push(arr.LotNo);
-              this.listDispenStockt[x]['LotNo'] = LotNo;
-              let Exp = [];
-              Exp.push(this.listDispenStockt[x]['Exp']);
-              Exp.push(arr.Exp);
-              this.listDispenStockt[x]['Exp'] = Exp;
-              let In_Qty = [];
-              In_Qty.push(this.listDispenStockt[x]['In_Qty']);
-              In_Qty.push(arr.In_Qty);
-              this.listDispenStockt[x]['In_Qty'] = In_Qty;
+          const groupedItemsMap: { [key: string]: GroupedItem } = {};
+          arr.forEach((item) => {
+            const {
+              binID,
+              DrugCd,
+              DrugNm,
+              SumLotQty,
+              Fix,
+              Min,
+              Refill,
+              LotNo,
+              Exp,
+              In_Qty,
+            } = item;
+            const key = `${binID}_${DrugCd}`;
+            if (!(key in groupedItemsMap)) {
+              groupedItemsMap[key] = {
+                binID: binID,
+                DrugCd: DrugCd,
+                DrugNm: DrugNm,
+                SumLotQty: SumLotQty,
+                Fix: Fix,
+                Min: Min,
+                Refill: Refill,
+                numLot: [0],
+                Lot: { 0: { LotNo: LotNo, Exp: Exp, In_Qty: In_Qty } },
+              };
             } else {
-              this.listDispenStockt.push(arr);
+              const lotCount = Object.keys(groupedItemsMap[key].Lot).length;
+
+              groupedItemsMap[key].Lot[lotCount] = {
+                LotNo: LotNo,
+                Exp: Exp,
+                In_Qty: In_Qty,
+              };
+
+              groupedItemsMap[key].numLot = [];
+
+              for (let i = 0; i <= lotCount; i++) {
+                groupedItemsMap[key].numLot.push(i);
+              }
             }
           });
-          this.listDispenStockt.length > 0
-            ? (this.showDispenStockt = true)
-            : '';
-          // console.log(this.listDispenStockt);
+
+          const y: GroupedItem[] = Object.values(groupedItemsMap);
+
+          this.listDispenStockt = y;
           this.dataDispenStockt = new MatTableDataSource(this.listDispenStockt);
           this.dataDispenStockt.sort = this.sortDispenStockt;
           this.dataDispenStockt.paginator = this.paginDispenStockt;
-        } else {
+          this.showDispenStockt = true;
         }
       } else {
         this.services.alert(
@@ -272,7 +303,7 @@ export class FloorStockComponent implements OnInit {
       moment().format('hhmmss');
     let arr: Array<any> = [];
     arr.push(this.fromRefill);
-    this.dataRefill = [];
+    this.dataRefill = null;
     if (!parseFloat(this.fromRefill.Refill)) {
       this.services.alert('warning', 'กรุณาใส่จำนวน');
       return;
@@ -305,7 +336,7 @@ export class FloorStockComponent implements OnInit {
       .then((val: any) => {
         if (val) {
           // console.log(e);
-          this.dataRefill = [];
+          this.dataRefill = null;
           this.ListRefill.splice(e.rowNum, 1);
           this.ListRefill.forEach((item, i) => {
             item.rowNum = i;
@@ -460,7 +491,7 @@ export class FloorStockComponent implements OnInit {
       refNo = e.target.value;
     }
     this.ListRefill = [];
-    this.dataRefill = [];
+    this.dataRefill = null;
     let key = new FormData();
     key.append('refNo', refNo);
     this.services.post('DrugIden/findRefillD', key).then((value: any) => {
@@ -491,7 +522,8 @@ export class FloorStockComponent implements OnInit {
     this.show = 1;
     this.printNow = 1;
     this.ListRefill = [];
-    this.dataRefill = [];
+    this.dataRefill = null;
+    this.getmedDispenStock();
   }
 
   viewQR = async (e: any) => {
@@ -510,6 +542,191 @@ export class FloorStockComponent implements OnInit {
       html: qrCodeHtml,
       showCloseButton: true,
       showConfirmButton: false,
+    });
+  };
+
+  editFix = async (data: any) => {
+    // console.log(data);
+    let oldQty = parseInt(data.Fix);
+    const { value: newFix } = await Swal.fire({
+      input: 'number',
+      title: data.DrugNm,
+      text: 'แก้ไข Fix',
+      inputLabel: '',
+      inputPlaceholder: '',
+      inputValue: oldQty,
+      confirmButtonText: 'ยืนยัน',
+      showCancelButton: true,
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#3085d6',
+      allowOutsideClick: false,
+      inputValidator: (value) => {
+        return new Promise((resolve) => {
+          if (value) {
+            resolve('');
+          } else {
+            resolve('กรุณาใส่จำนวน');
+          }
+        });
+      },
+    });
+    if (newFix) {
+      let key = new FormData();
+      key.append('binID', data.binID);
+      key.append('DrugCd', data.DrugCd);
+      key.append('positionid', this.positionid);
+      key.append('Fix', newFix);
+      key.append('Min', data.Min);
+      this.services.post('DrugIden/updateFixMin', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          this.getmedDispenStock();
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+    }
+  };
+
+  editMin = async (data: any) => {
+    // console.log(data);
+    let oldQty = parseInt(data.Min);
+    const { value: newMin } = await Swal.fire({
+      input: 'number',
+      title: data.DrugNm,
+      text: 'แก้ไข Min',
+      inputLabel: '',
+      inputPlaceholder: '',
+      inputValue: oldQty,
+      confirmButtonText: 'ยืนยัน',
+      showCancelButton: true,
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#3085d6',
+      allowOutsideClick: false,
+      inputValidator: (value) => {
+        return new Promise((resolve) => {
+          if (value) {
+            resolve('');
+          } else {
+            resolve('กรุณาใส่จำนวน');
+          }
+        });
+      },
+    });
+    if (newMin) {
+      let key = new FormData();
+      key.append('binID', data.binID);
+      key.append('DrugCd', data.DrugCd);
+      key.append('positionid', this.positionid);
+      key.append('Fix', data.Fix);
+      key.append('Min', newMin);
+      this.services.post('DrugIden/updateFixMin', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          this.getmedDispenStock();
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+    }
+  };
+
+  delLot = async (e: any, x: any) => {
+    // console.log(e);
+    this.services
+      .confirm('warning', 'ยืนยันการลบข้อมูล', e.Lot[x]['LotNo'])
+      .then((val: any) => {
+        if (val) {
+          let key = new FormData();
+          key.append('positionid', this.positionid);
+          key.append('binID', e.binID);
+          key.append('DrugCd', e.DrugCd);
+          key.append('LotNo', e.Lot[x]['LotNo']);
+          key.forEach((val, key) => {
+            console.log(key + ': ' + val);
+          });
+          this.services.post('DrugIden/deleteMsLot', key).then((value: any) => {
+            // console.log(value);
+            if (value.connect) {
+              this.getmedDispenStock();
+            } else {
+              this.services.alert(
+                'error',
+                'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                'โปรดติดต่อผู้ดูแลระบบ'
+              );
+            }
+          });
+        }
+      });
+  };
+
+  editLot = async (e: any, x: any) => {
+    this.dataDrug = e;
+    this.formDrug.patchValue({
+      LotNo: e.Lot[x]['LotNo'],
+      Exp: e.Lot[x]['Exp'],
+      oldQty: e.Lot[x]['In_Qty'],
+      newQty: e.Lot[x]['In_Qty'],
+      SumLotQty: e.SumLotQty,
+    });
+    // console.log(this.dataDrug);
+    _window.$(`#editLot`).modal('show');
+  };
+
+  submitEditLot = async () => {
+    let SumLotQty: any;
+    if (this.formDrug.value.oldQty > this.formDrug.value.newQty) {
+      SumLotQty =
+        parseInt(this.formDrug.value.SumLotQty) -
+        (this.formDrug.value.oldQty - this.formDrug.value.newQty);
+    } else {
+      SumLotQty =
+        parseInt(this.formDrug.value.SumLotQty) +
+        (this.formDrug.value.newQty - this.formDrug.value.oldQty);
+    }
+    let key = new FormData();
+    key.append('positionid', this.positionid);
+    key.append('binID', this.dataDrug.binID);
+    key.append('DrugCd', this.dataDrug.DrugCd);
+    key.append('LotNo', this.formDrug.value.LotNo);
+    key.append('Exp', this.formDrug.value.Exp);
+    key.append('In_Qty', this.formDrug.value.newQty);
+    key.append('SumLotQty', SumLotQty);
+    // key.forEach((val, key) => {
+    //   console.log(key + ': ' + val);
+    // });
+    this.services.post('DrugIden/updateMsLot', key).then((value: any) => {
+      // console.log(value);
+      if (value.connect) {
+        this.services.post('DrugIden/updateMsBin', key).then((value: any) => {
+          // console.log(value);
+          if (value.connect) {
+            this.getmedDispenStock();
+            _window.$(`#editLot`).modal('hide');
+          } else {
+            this.services.alert(
+              'error',
+              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+              'โปรดติดต่อผู้ดูแลระบบ'
+            );
+          }
+        });
+      } else {
+        this.services.alert(
+          'error',
+          'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+          'โปรดติดต่อผู้ดูแลระบบ'
+        );
+      }
     });
   };
 }

@@ -12,8 +12,11 @@ export class NavbarComponent implements OnInit {
   device: Array<any> = [];
   deviceName: any;
   deviceLocat: any;
+  deviceType: any;
   userName: any = null;
   regis = false;
+  numOrder = 0;
+  interval: any;
 
   constructor(private services: AppService) {
     this.userName = sessionStorage.getItem('userName');
@@ -24,12 +27,12 @@ export class NavbarComponent implements OnInit {
   }
 
   closeDropdown() {
-    const button = document.querySelector(
-      '.navbar-toggler'
-    ) as HTMLButtonElement;
-    if (button) {
-      button.click();
-    }
+    // const button = document.querySelector(
+    //   '.navbar-toggler'
+    // ) as HTMLButtonElement;
+    // if (button) {
+    //   button.click();
+    // }
   }
 
   getIP = async () => {
@@ -40,6 +43,7 @@ export class NavbarComponent implements OnInit {
           .filter((value) => typeof value === 'string')
           .join('');
         this.checkIP();
+        sessionStorage.setItem('ip', this.ip);
       } else {
         this.services.alert(
           'error',
@@ -60,13 +64,21 @@ export class NavbarComponent implements OnInit {
           this.device = value.result;
           this.regis = true;
           this.deviceName = this.device[0]['deptName'];
-          this.deviceLocat = this.device[0]['location'];
+          this.deviceLocat = this.device[0]['deptCode'];
+          this.getOrder();
+          clearInterval(this.interval);
+          this.interval = setInterval(() => {
+            this.getOrder();
+          }, 60 * 1000);
+          this.deviceType = this.device[0]['deptType'];
           sessionStorage.setItem('location', this.deviceLocat);
           sessionStorage.setItem('locationNm', this.deviceName);
           sessionStorage.setItem('locationPhone', this.device[0]['phone']);
-          if (this.deviceLocat != 'W7') {
-            this.services.navRouter('/Ward/CheckDrug');
-          }
+          sessionStorage.setItem('siteName', this.device[0]['site_blag']);
+          sessionStorage.setItem('locationType', this.deviceType);
+          // if (this.deviceLocat != 'W7') {
+          //   this.services.navRouter('/Ward/CheckDrug');
+          // }
         }
       } else {
         this.services.alert(
@@ -78,6 +90,27 @@ export class NavbarComponent implements OnInit {
       // console.log(this.device);
     });
   };
+
+  getOrder() {
+    this.numOrder = 0;
+    let key = new FormData();
+    key.append('wardCode', this.deviceLocat);
+    this.services.post('DrugIden/listOrderFlsk', key).then((value: any) => {
+      // console.log(value);
+      if (value.connect) {
+        if (value.rowCount > 0) {
+          this.numOrder = value.rowCount;
+          // console.log(this.numOrder)
+        }
+      } else {
+        this.services.alert(
+          'error',
+          'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+          'โปรดติดต่อผู้ดูแลระบบ'
+        );
+      }
+    });
+  }
 
   logIn() {}
 

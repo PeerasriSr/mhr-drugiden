@@ -1,8 +1,10 @@
-.topLine {
-  border-top: 1px solid lightgray;
-}
+
 .lot {
-  padding: 0;
+  min-width: 6.25rem;
+}
+
+.lot-qty {
+  min-width: 3rem;
 }
 
 @media print {
@@ -13,3 +15,20 @@
     background: #fff !important;
   }
 }
+
+.edit-lot {
+  cursor: pointer;
+}
+
+.edit-lot:hover {
+  color: #0d6efd;
+}
+
+
+.grid {
+  display: grid;
+  column-gap: 8px;
+  grid-template-columns: auto auto;
+  // padding: 10px;
+}
+

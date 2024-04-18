@@ -1,5 +1,9 @@
-<nav class="navbar navbar-light bg-light navbar-expand-lg ">
-  <a class="navbar-brand" href="#"><i class="fas fa-pills"></i> Drug Identification {{ deviceName }}</a>
+<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand">
+    <img src="/DrugIdentification/assets/img/logoV1.png" />
+    <!-- <img src="/assets/img/logoV1.png" /> -->
+    {{ deviceName }}</a
+  >
   <button
     class="navbar-toggler"
     type="button"
@@ -12,14 +16,12 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto" *ngIf="userName">
+    <ul class="navbar-nav mr-auto" *ngIf="userName && deviceType === 'phar'">
       <li class="nav-item">
-        <a class="nav-link" href="#/Index" (click)="closeDropdown()"
-          >หอผู้ป่วย</a
-        >
+        <a class="nav-link" href="#/Index">หน้าหลัก</a>
       </li>
 
-      <li class="nav-item dropdown">
+      <!-- <li class="nav-item dropdown">
         <a
           class="nav-link dropdown-toggle"
           href="#"
@@ -30,20 +32,30 @@
           ห้องยา
         </a>
         <div class="dropdown-menu">
-          <a
-            class="dropdown-item"
-            href="#/Phar/CheckRequest"
-            (click)="closeDropdown()"
-            ><span class="material-icons"> find_in_page </span>
-            ตรวจสอบใบสั่งยา</a
-          >
-          <a
-            class="dropdown-item"
-            href="#/Phar/CheckRequest"
-            (click)="closeDropdown()"
-            ><span class="material-icons"> description </span>
-            รายงานการตรวจสอบ</a
-          >
+          <a class="dropdown-item" href="#/CheckRequest">ตรวจสอบใบสั่งยา</a>
+        </div>
+      </li> -->
+      <li class="nav-item">
+        <a class="nav-link" href="#/CheckRequest">ตรวจสอบใบสั่งยา</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#/Patient/Admit">แพ้ยา</a>
+      </li>
+
+      <li class="nav-item dropdown" *ngIf="deviceLocat === 'W7'">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Med Dispensing
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#/MedDispen/Inventory">จำนวนคงเหลือ</a>
+          <a class="dropdown-item" href="#/MedDispen/User"> รายงานผู้ใช้งาน</a>
+          <a class="dropdown-item" href="#/MedDispen/Drug"> รายงานการใช้ยา</a>
         </div>
       </li>
       <li class="nav-item dropdown">
@@ -54,21 +66,52 @@
           data-toggle="dropdown"
           aria-expanded="false"
         >
-          Floor Stock
+          ยาเสพติด
         </a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="#/FloorStock" (click)="closeDropdown()"
-            ><span class="material-icons"> inventory </span> จำนวนคงเหลือ</a
+          <a class="dropdown-item" href="#/Drug/Receive">คืนยาเสพติด</a>
+          <a class="dropdown-item" href="#/Report/Addictive">รายงานยาเสพติด</a>
+        </div>
+      </li>
+    </ul>
+    <ul class="navbar-nav mr-auto" *ngIf="deviceType === 'ward'">
+      <li class="nav-item">
+        <a class="nav-link" href="#/Index">หน้าหลัก</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#/OrderInWard">ใบสั่งยา</a>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <span matBadge="{{ numOrder }}" matBadgeColor="warn">
+            Med Dispensing</span
           >
-          <a class="dropdown-item" href="#/FloorStock" (click)="closeDropdown()"
-            ><span class="material-icons"> description </span> รายงานเติมยา</a
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#/Meddispen/Order"
+            >ออเดอร์ Med Dispensing</a
+          >
+          <a class="dropdown-item" href="#/Meddispen/Wards">
+            รายงาน Med Dispensing</a
           >
         </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#/Drug/Return" *ngIf="userName"
+          >คืนยาเสพติด</a
+        >
       </li>
     </ul>
     <ul class="navbar-nav mr-auto" *ngIf="!userName"></ul>
 
-    <div *ngIf="regis && deviceLocat == 'W7' && !userName">
+    <div *ngIf="regis && !userName">
       <a href="#/Login" (click)="logIn()">เข้าสู่ระบบ</a>
     </div>
 
@@ -76,17 +119,37 @@
       <a href="#" (click)="register()">ลงทะเบียน</a>
     </div>
 
-    <div class="dropdown" *ngIf="userName">
+    <ul class="navbar-nav" *ngIf="userName">
+      <li class="nav-item user-dropdown dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <div class="user-info link">
+            <mat-icon>account_circle</mat-icon> {{ userName }}
+          </div>
+
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="logOut()">ออกจากระบบ</a>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <!-- <div class="dropdown user-dropdown" *ngIf="userName">
       <a
         class="dropdown-toggle pointer"
         data-toggle="dropdown"
         aria-expanded="false"
-        ><i class="fas fa-user"></i> {{ userName }}</a
+        ><mat-icon>account_circle</mat-icon> {{ userName }}</a
       >
       <div class="dropdown-menu">
         <a class="dropdown-item" (click)="logOut()">ออกจากระบบ</a>
       </div>
-    </div>
+    </div> -->
   </div>
 </nav>
 <router-outlet></router-outlet>

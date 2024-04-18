@@ -13,13 +13,16 @@ import { AppService } from 'src/app/app.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
+  ip: any;
   userLogin: any = null;
   loginForm = new FormGroup({
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
 
-  constructor(private fb: FormBuilder, private services: AppService) {}
+  constructor(private fb: FormBuilder, private services: AppService) {
+    this.ip = sessionStorage.getItem('ip');
+  }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({

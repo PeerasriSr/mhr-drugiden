@@ -15,8 +15,10 @@ const _window: any = window;
   styleUrls: ['./check-request.component.scss'],
 })
 export class CheckRequestComponent implements OnInit {
+  ip: any;
   userID: any;
   userName: any;
+  wardCode: any;
   wardName: any;
   wardPhone: any;
   valueHN = '';
@@ -80,6 +82,12 @@ export class CheckRequestComponent implements OnInit {
     previous: '',
   };
 
+  listAllDrug: Array<any> = [];
+  dataAllDrug: any = null;
+  @ViewChild('sortAlldrug') sortAlldrug!: MatSort;
+  @ViewChild('paginatorAllDrug') paginatorAllDrug!: MatPaginator;
+  displayAllDrug: string[] = ['drugName'];
+
   listAllRequest: Array<any> = [];
   dataAllRequest: any;
   @ViewChild('sortAllRequest') sortAllRequest!: MatSort;
@@ -108,11 +116,11 @@ export class CheckRequestComponent implements OnInit {
     'row_number',
     'startIssDate',
     // 'drugCode',
+    'img',
     'drugName',
     'lamedText',
     'qtyReq',
     'u_price',
-    'img',
   ];
   labDetail: Array<any> = [];
   Scr: any;
@@ -133,242 +141,30 @@ export class CheckRequestComponent implements OnInit {
   setMedError: any;
   arrMedError: Array<any> = [];
 
-  Ascii = [
-    { hex: '20', dec: 32, char: ' ' },
-    { hex: '21', dec: 33, char: '!' },
-    { hex: '22', dec: 34, char: '"' },
-    { hex: '23', dec: 35, char: '#' },
-    { hex: '24', dec: 36, char: '$' },
-    { hex: '25', dec: 37, char: '%' },
-    { hex: '26', dec: 38, char: '&' },
-    { hex: '27', dec: 39, char: "'" },
-    { hex: '28', dec: 40, char: '(' },
-    { hex: '29', dec: 41, char: ')' },
-    { hex: '2A', dec: 42, char: '*' },
-    { hex: '2B', dec: 43, char: '+' },
-    { hex: '2C', dec: 44, char: ',' },
-    { hex: '2D', dec: 45, char: '-' },
-    { hex: '2E', dec: 46, char: '.' },
-    { hex: '2F', dec: 47, char: '/' },
-    { hex: '30', dec: 48, char: '0' },
-    { hex: '31', dec: 49, char: '1' },
-    { hex: '32', dec: 50, char: '2' },
-    { hex: '33', dec: 51, char: '3' },
-    { hex: '34', dec: 52, char: '4' },
-    { hex: '35', dec: 53, char: '5' },
-    { hex: '36', dec: 54, char: '6' },
-    { hex: '37', dec: 55, char: '7' },
-    { hex: '38', dec: 56, char: '8' },
-    { hex: '39', dec: 57, char: '9' },
-    { hex: '3A', dec: 58, char: ':' },
-    { hex: '3B', dec: 59, char: ';' },
-    { hex: '3C', dec: 60, char: '<' },
-    { hex: '3D', dec: 61, char: '=' },
-    { hex: '3E', dec: 62, char: '>' },
-    { hex: '3F', dec: 63, char: '?' },
-    { hex: '40', dec: 64, char: '@' },
-    { hex: '41', dec: 65, char: 'A' },
-    { hex: '42', dec: 66, char: 'B' },
-    { hex: '43', dec: 67, char: 'C' },
-    { hex: '44', dec: 68, char: 'D' },
-    { hex: '45', dec: 69, char: 'E' },
-    { hex: '46', dec: 70, char: 'F' },
-    { hex: '47', dec: 71, char: 'G' },
-    { hex: '48', dec: 72, char: 'H' },
-    { hex: '49', dec: 73, char: 'I' },
-    { hex: '4A', dec: 74, char: 'J' },
-    { hex: '4B', dec: 75, char: 'K' },
-    { hex: '4C', dec: 76, char: 'L' },
-    { hex: '4D', dec: 77, char: 'M' },
-    { hex: '4E', dec: 78, char: 'N' },
-    { hex: '4F', dec: 79, char: 'O' },
-    { hex: '50', dec: 80, char: 'P' },
-    { hex: '51', dec: 81, char: 'Q' },
-    { hex: '52', dec: 82, char: 'R' },
-    { hex: '53', dec: 83, char: 'S' },
-    { hex: '54', dec: 84, char: 'T' },
-    { hex: '55', dec: 85, char: 'U' },
-    { hex: '56', dec: 86, char: 'V' },
-    { hex: '57', dec: 87, char: 'W' },
-    { hex: '58', dec: 88, char: 'X' },
-    { hex: '59', dec: 89, char: 'Y' },
-    { hex: '5A', dec: 90, char: 'Z' },
-    { hex: '5B', dec: 91, char: '[' },
-    // { hex: '5C', dec: 92, char: '\' },
-    { hex: '5D', dec: 93, char: ']' },
-    { hex: '5E', dec: 94, char: '^' },
-    { hex: '5F', dec: 95, char: '_' },
-    { hex: '60', dec: 96, char: '`' },
-    { hex: '61', dec: 97, char: 'a' },
-    { hex: '62', dec: 98, char: 'b' },
-    { hex: '63', dec: 99, char: 'c' },
-    { hex: '64', dec: 100, char: 'd' },
-    { hex: '65', dec: 101, char: 'e' },
-    { hex: '66', dec: 102, char: 'f' },
-    { hex: '67', dec: 103, char: 'g' },
-    { hex: '68', dec: 104, char: 'h' },
-    { hex: '69', dec: 105, char: 'i' },
-    { hex: '6A', dec: 106, char: 'j' },
-    { hex: '6B', dec: 107, char: 'k' },
-    { hex: '6C', dec: 108, char: 'l' },
-    { hex: '6D', dec: 109, char: 'm' },
-    { hex: '6E', dec: 110, char: 'n' },
-    { hex: '6F', dec: 111, char: 'o' },
-    { hex: '70', dec: 112, char: 'p' },
-    { hex: '71', dec: 113, char: 'q' },
-    { hex: '72', dec: 114, char: 'r' },
-    { hex: '73', dec: 115, char: 's' },
-    { hex: '74', dec: 116, char: 't' },
-    { hex: '75', dec: 117, char: 'u' },
-    { hex: '76', dec: 118, char: 'v' },
-    { hex: '77', dec: 119, char: 'w' },
-    { hex: '78', dec: 120, char: 'x' },
-    { hex: '79', dec: 121, char: 'y' },
-    { hex: '7A', dec: 122, char: 'z' },
-    { hex: '7B', dec: 123, char: '{' },
-    { hex: '7C', dec: 124, char: '|' },
-    { hex: '7D', dec: 125, char: '}' },
-    { hex: '7E', dec: 126, char: '~' },
-    { hex: '80', dec: 128, char: '€' },
-    { hex: '85', dec: 133, char: '…' },
-    { hex: '91', dec: 145, char: '‘' },
-    { hex: '92', dec: 146, char: '’' },
-    { hex: '93', dec: 147, char: '“' },
-    { hex: '94', dec: 148, char: '”' },
-    { hex: '95', dec: 149, char: '•' },
-    { hex: '96', dec: 150, char: '–' },
-    { hex: '97', dec: 151, char: '—' },
-    { hex: 'A0', dec: 160, char: 'NO-BREAK SPACE' },
-    { hex: 'A1', dec: 161, char: 'ก' },
-    { hex: 'A2', dec: 162, char: 'ข' },
-    { hex: 'A3', dec: 163, char: 'ฃ' },
-    { hex: 'A4', dec: 164, char: 'ค' },
-    { hex: 'A5', dec: 165, char: 'ฅ' },
-    { hex: 'A6', dec: 166, char: 'ฆ' },
-    { hex: 'A7', dec: 167, char: 'ง' },
-    { hex: 'A8', dec: 168, char: 'จ' },
-    { hex: 'A9', dec: 169, char: 'ฉ' },
-    { hex: 'AA', dec: 170, char: 'ช' },
-    { hex: 'AB', dec: 171, char: 'ซ' },
-    { hex: 'AC', dec: 172, char: 'ฌ' },
-    { hex: 'AD', dec: 173, char: 'ญ' },
-    { hex: 'AE', dec: 174, char: 'ฎ' },
-    { hex: 'AF', dec: 175, char: 'ฏ' },
-    { hex: 'B0', dec: 176, char: 'ฐ' },
-    { hex: 'B1', dec: 177, char: 'ฑ' },
-    { hex: 'B2', dec: 178, char: 'ฒ' },
-    { hex: 'B3', dec: 179, char: 'ณ' },
-    { hex: 'B4', dec: 180, char: 'ด' },
-    { hex: 'B5', dec: 181, char: 'ต' },
-    { hex: 'B6', dec: 182, char: 'ถ' },
-    { hex: 'B7', dec: 183, char: 'ท' },
-    { hex: 'B8', dec: 184, char: 'ธ' },
-    { hex: 'B9', dec: 185, char: 'น' },
-    { hex: 'BA', dec: 186, char: 'บ' },
-    { hex: 'BB', dec: 187, char: 'ป' },
-    { hex: 'BC', dec: 188, char: 'ผ' },
-    { hex: 'BD', dec: 189, char: 'ฝ' },
-    { hex: 'BE', dec: 190, char: 'พ' },
-    { hex: 'BF', dec: 191, char: 'ฟ' },
-    { hex: 'C0', dec: 192, char: 'ภ' },
-    { hex: 'C1', dec: 193, char: 'ม' },
-    { hex: 'C2', dec: 194, char: 'ย' },
-    { hex: 'C3', dec: 195, char: 'ร' },
-    { hex: 'C4', dec: 196, char: 'ฤ' },
-    { hex: 'C5', dec: 197, char: 'ล' },
-    { hex: 'C6', dec: 198, char: 'ฦ' },
-    { hex: 'C7', dec: 199, char: 'ว' },
-    { hex: 'C8', dec: 200, char: 'ศ' },
-    { hex: 'C9', dec: 201, char: 'ษ' },
-    { hex: 'CA', dec: 202, char: 'ส' },
-    { hex: 'CB', dec: 203, char: 'ห' },
-    { hex: 'CC', dec: 204, char: 'ฬ' },
-    { hex: 'CD', dec: 205, char: 'อ' },
-    { hex: 'CE', dec: 206, char: 'ฮ' },
-    { hex: 'CF', dec: 207, char: 'ฯ' },
-    { hex: 'D0', dec: 208, char: 'ะ' },
-    { hex: 'D1', dec: 209, char: 'ั' },
-    { hex: 'D2', dec: 210, char: 'า' },
-    { hex: 'D3', dec: 211, char: 'ำ' },
-    { hex: 'D4', dec: 212, char: 'ิ' },
-    { hex: 'D5', dec: 213, char: 'ี' },
-    { hex: 'D6', dec: 214, char: 'ึ' },
-    { hex: 'D7', dec: 215, char: 'ื' },
-    { hex: 'D8', dec: 216, char: 'ุ' },
-    { hex: 'D9', dec: 217, char: 'ู' },
-    { hex: 'DA', dec: 218, char: 'ฺ' },
-    { hex: 'DF', dec: 223, char: '฿' },
-    { hex: 'E0', dec: 224, char: 'เ' },
-    { hex: 'E1', dec: 225, char: 'แ' },
-    { hex: 'E2', dec: 226, char: 'โ' },
-    { hex: 'E3', dec: 227, char: 'ใ' },
-    { hex: 'E4', dec: 228, char: 'ไ' },
-    { hex: 'E5', dec: 229, char: 'ๅ' },
-    { hex: 'E6', dec: 230, char: 'ๆ' },
-    { hex: 'E7', dec: 231, char: '็' },
-    { hex: 'E8', dec: 232, char: '่' },
-    { hex: 'E9', dec: 233, char: '้' },
-    { hex: 'EA', dec: 234, char: '๊' },
-    { hex: 'EB', dec: 235, char: '๋' },
-    { hex: 'EC', dec: 236, char: '์' },
-    { hex: 'ED', dec: 237, char: 'ํ' },
-    { hex: 'EE', dec: 238, char: '๎' },
-    { hex: 'EF', dec: 239, char: '๏' },
-    { hex: 'F0', dec: 240, char: '๐' },
-    { hex: 'F1', dec: 241, char: '๑' },
-    { hex: 'F2', dec: 242, char: '๒' },
-    { hex: 'F3', dec: 243, char: '๓' },
-    { hex: 'F4', dec: 244, char: '๔' },
-    { hex: 'F5', dec: 245, char: '๕' },
-    { hex: 'F6', dec: 246, char: '๖' },
-    { hex: 'F7', dec: 247, char: '๗' },
-    { hex: 'F8', dec: 248, char: '๘' },
-    { hex: 'F9', dec: 249, char: '๙' },
-    { hex: 'FA', dec: 250, char: '๚' },
-    { hex: 'FB', dec: 251, char: '๛' },
-  ];
-
   currentDate: any;
 
   constructor(public services: AppService, private spinner: NgxSpinnerService) {
     this.userID = sessionStorage.getItem('userID');
     this.userName = sessionStorage.getItem('userName');
+    this.wardCode = sessionStorage.getItem('location');
     this.wardName = sessionStorage.getItem('locationNm');
     this.wardPhone = sessionStorage.getItem('locationPhone');
+    this.ip = sessionStorage.getItem('ip');
+    this.clearHMed();
+    // console.log(this.wardCode);
   }
 
   ngOnInit(): void {
     this.getErrorType();
     const date = moment();
     this.currentDate = date.format('YYYY-MM-DD');
+    this.getAllDrug();
+    // this.HnToRequest('2341076');
   }
 
   // refreshPage() {
   //   location.reload();
   // }
-
-  convertRtfToText(rtfText: string): string {
-    const rtfPattern = /\\([a-z0-9]*)\b|\\/g;
-    const plainText = rtfText.replace(rtfPattern, '');
-    const unwantedText = '{{{{* MS Sans Serif;}Helv;}}';
-    const startIndex = plainText.indexOf(unwantedText) + unwantedText.length;
-    const endIndex = plainText.lastIndexOf('}');
-    const extractedText = plainText.substring(startIndex, endIndex);
-    let inputText = extractedText.trim().toUpperCase();
-    let symbolIndex = inputText.indexOf("'");
-    while (symbolIndex !== -1) {
-      const twoChars = inputText.substring(symbolIndex + 1, symbolIndex + 3);
-      const convertedValue = parseInt(twoChars, 16);
-      // console.log(convertedValue);
-      let char = '';
-      this.Ascii.forEach((item) => {
-        item.dec == convertedValue ? (char = item.char) : '';
-      });
-      inputText = inputText.replace("'" + twoChars, char);
-      symbolIndex = inputText.indexOf("'", symbolIndex + 1);
-    }
-    return inputText;
-  }
 
   // findRequest = async (e: any) => {
   //   let key = new FormData();
@@ -403,10 +199,15 @@ export class CheckRequestComponent implements OnInit {
     this.spinner.show();
     this.listAllRequest = [];
     this.dataAllRequest = null;
+    let hn = e.trim();
     let key = new FormData();
-    key.append('hn', String(e.padStart(7, ' ')));
+    key.append('hn', String(hn.padStart(7, ' ')));
+    key.append('site', this.wardCode);
+    // key.forEach((value, key) => {
+    //   console.log(key + ' : ' + value);
+    // });
     // key.append('hn', e);
-    this.services.post('DrugIden/HnToRequest', key).then((value: any) => {
+    this.services.post('DrugIden/HnToReq', key).then((value: any) => {
       // console.log(value);
       if (value.connect) {
         if (value.rowCount > 0) {
@@ -416,24 +217,29 @@ export class CheckRequestComponent implements OnInit {
             el.reqDateTh = this.formatValToDateTh(el.reqDate);
             let key = new FormData();
             key.append('reqNo', el.reqNo);
-            this.services
-              .post('DrugIden/checkReqHit', key)
-              .then((value: any) => {
-                // console.log(value);
-                if (value.connect) {
-                  if (value.rowCount > 0) {
-                    el.status = value.result[0]['reqStatus'];
-                    el.editMaker = value.result[0]['editMaker'];
-                    el.comfirmMaker = value.result[0]['comfirmMaker'];
+            this.services.post('DrugIden/checkReqH', key).then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+                if (value.rowCount > 0) {
+                  if (value.result[0]['notCheck'] > 0) {
+                    el.status = 'edit';
+                  } else {
+                    el.status = 'done';
                   }
+                  // el.status = value.result[0]['reqStatus'];
+                  // el.editMaker = value.result[0]['editMaker'];
+                  // el.comfirmMaker = value.result[0]['comfirmMaker'];
                 } else {
-                  this.services.alert(
-                    'error',
-                    'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                    'โปรดติดต่อผู้ดูแลระบบ'
-                  );
+                  el.status = 'wait';
                 }
-              });
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
           });
           this.dataAllRequest = new MatTableDataSource(this.listAllRequest);
           this.dataAllRequest.sort = this.sortAllRequest;
@@ -468,14 +274,13 @@ export class CheckRequestComponent implements OnInit {
     this.total = 0;
     this.patientAge = this.calculateAge(e.birthDay);
     this.reqDateTh = this.formatDateEnToDateTh(this.currentDate);
-    if (this.orderRequest.status === 'wait') {
-      this.reqStatus = 'รอตรวจสอบ';
-    } else if (this.orderRequest.status === 'edit') {
-      this.reqStatus = 'ส่งแก้ไข';
-    } else {
-      this.reqStatus = 'เสร็จสิ้น';
-    }
-
+    // if (this.orderRequest.status === 'wait') {
+    //   this.reqStatus = 'รอตรวจสอบ';
+    // } else if (this.orderRequest.status === 'edit') {
+    //   this.reqStatus = 'ส่งแก้ไข';
+    // } else {
+    //   this.reqStatus = 'เสร็จสิ้น';
+    // }
     await this.getOrderDetail(e);
     await this.getLab(e);
     await this.getAllergy(e);
@@ -497,10 +302,69 @@ export class CheckRequestComponent implements OnInit {
     key.append('registNo', e.registNo);
     key.append('reqTyp2', e.reqType2);
     key.append('orderNo', e.reqNo);
+    key.append('reqNo', e.reqNo);
+    key.append('wardcode', e.wardcode);
 
     // key.forEach((value, key) => {
     //   console.log(key + ' : ' + value);
     // });
+
+    //Check Req Detail
+    let listReqH: Array<any> = [];
+    if (e.status != 'wait') {
+      this.services.post('DrugIden/listReqH', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          if (value.rowCount > 0) {
+            listReqH = value.result;
+            // console.log(listReqH);
+          }
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+    }
+
+    // Check Floor Stock
+    let listDispenLog: Array<any> = [];
+    let listWardStock: Array<any> = [];
+    if (this.orderRequest.reqType === 'ONE DAY') {
+      this.services.post('DrugIden/logDispenHit', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          if (value.rowCount > 0) {
+            listDispenLog = value.result;
+            // console.log(listDispenLog);
+          }
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+      this.services.post('DrugIden/checkWardStock', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          if (value.rowCount > 0) {
+            listWardStock = value.result;
+            // console.log(listWardStock);
+          }
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+    }
+
     let path = '';
     e.reqType === 'CONTINUE' ? (path = 'con') : (path = 'one');
     this.services.post('DrugIden/req' + path, key).then((value: any) => {
@@ -619,21 +483,21 @@ export class CheckRequestComponent implements OnInit {
                       }
                     });
                     let detail = new FormData();
-                    detail.append('reqNo', this.orderRequest.reqNo);
-                    detail.append('wardcode', e.wardcode);
+                    // detail.append('reqNo', this.orderRequest.reqNo);
+                    // detail.append('wardcode', e.wardcode);
                     detail.append('drugCode', el.drugCode);
                     detail.append('hn', e.hn);
-                    detail.append(
-                      'thDate',
-                      this.formatDateEnToVal(this.currentDate)
-                    );
+                    // detail.append(
+                    //   'thDate',
+                    //   this.formatDateEnToVal(this.currentDate)
+                    // );
                     // detail.forEach((value, key) => {
                     //   console.log(key + ' : ' + value);
                     // });
                     this.services
                       .post('DrugIden/drugLab', detail)
                       .then((value: any) => {
-                        // console.log(value);
+                        console.log(value);
                         if (value.connect) {
                           if (value.rowCount > 0) {
                             el.lab = value.result;
@@ -646,42 +510,27 @@ export class CheckRequestComponent implements OnInit {
                           );
                         }
                       });
-                    if (this.orderRequest.reqNo === el.reqNo) {
-                      this.services
-                        .post('DrugIden/checkMedStock', detail)
-                        .then((value: any) => {
-                          // console.log(value);
-                          if (value.connect) {
-                            if (value.rowCount > 0) {
-                              el.medFloorStock = 'Y';
-                            }
-                          } else {
-                            this.services.alert(
-                              'error',
-                              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                              'โปรดติดต่อผู้ดูแลระบบ'
-                            );
-                          }
-                        });
+                    el.CF = parseInt(el.CF);
+                    listReqH.forEach((ReqH) => {
+                      if (el.drugCode === ReqH.drugCode) {
+                        el.CF = ReqH.drugStatus;
+                      }
+                    });
+                    if (listDispenLog.length > 0) {
+                      listDispenLog.forEach((DispenLog) => {
+                        if (el.drugCode === DispenLog.drugCode) {
+                          el.disppen = 'Y';
+                        }
+                      });
                     }
-                    if (e.status != 'wait') {
-                      this.services
-                        .post('DrugIden/checkMedReqH', detail)
-                        .then((value: any) => {
-                          // console.log(value);
-                          if (value.connect) {
-                            if (value.rowCount > 0) {
-                              el.CF = value.result[0]['drugStatus'];
-                            }
-                          } else {
-                            this.services.alert(
-                              'error',
-                              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                              'โปรดติดต่อผู้ดูแลระบบ'
-                            );
-                          }
-                        });
+                    if (listWardStock.length > 0) {
+                      listWardStock.forEach((WardStock) => {
+                        if (el.drugCode === WardStock.orderitemcode) {
+                          el.medCheck = 'MedDispens';
+                        }
+                      });
                     }
+
                     this.ED += parseFloat(el.u_price);
                   });
                   this.total += this.ED;
@@ -748,6 +597,9 @@ export class CheckRequestComponent implements OnInit {
     let key = new FormData();
     key.append('hn', e.hn);
     key.append('thDate', e.reqDate);
+    // key.forEach((value, key) => {
+    //   console.log(key + ' : ' + value);
+    // });
     this.services.post('DrugIden/RequestLab', key).then((value: any) => {
       // console.log(value);
       if (value.connect) {
@@ -836,7 +688,6 @@ export class CheckRequestComponent implements OnInit {
 
   getRequestMSG = async (e: any) => {
     // console.log(e)
-
     this.patientMSG = [];
     let key = new FormData();
     key.append('hn', e.hn);
@@ -849,8 +700,8 @@ export class CheckRequestComponent implements OnInit {
           arr = value.result;
           arr.forEach((a) => {
             // console.log(a.MSG_TEXT);
-            // console.log(this.convertRtfToText(a.MSG_TEXT));
-            this.patientMSG += this.convertRtfToText(a.MSG_TEXT);
+            // this.patientMSG += this.convertRtfToText(a.MSG_TEXT);
+            this.patientMSG += this.services.convertRtfToText(a.MSG_TEXT);
           });
         }
       } else {
@@ -934,12 +785,26 @@ export class CheckRequestComponent implements OnInit {
   };
 
   viewImg = async (e: any) => {
+    // Swal.fire({
+    //   // title: e.drugName,
+    //   imageUrl: e.img,
+    //   // imageWidth: 400,
+    //   // imageHeight: 200,
+    //   // confirmButtonText: 'ปิด',
+    //   showCloseButton: true,
+    //   showConfirmButton: false,
+    //   imageAlt: 'Custom image',
+    //   width: 'auto',
+    //   padding: 0,
+    // });
+
     Swal.fire({
       title: e.drugName,
       imageUrl: e.img,
       imageAlt: 'Popup Image',
-      showCloseButton: true,
-      showConfirmButton: false,
+      confirmButtonText: 'ปิด',
+      // showConfirmButton: false,
+      // showCloseButton: true,
       // width: `800px`,
     });
   };
@@ -993,11 +858,36 @@ export class CheckRequestComponent implements OnInit {
     }
   }
 
-  checkTureAll() {
+  durgIndex: any;
+  clickCheckTrue(data: any) {
+    this.durgIndex = data;
+    if (this.listOrderDetail[this.durgIndex]['CF'] !== 1) {
+      this.listOrderDetail[this.durgIndex]['CF'] = 1;
+    } else {
+      this.listOrderDetail[this.durgIndex]['CF'] = 0;
+    }
+  }
+
+  clickCheckFlase(data: any) {
+    // console.log(this.arrMedError);
+    this.durgIndex = data;
+    // console.log(this.listOrderDetail[this.durgIndex]);
+    if (this.listOrderDetail[this.durgIndex]['CF'] !== 2) {
+      this.setMedErr(this.listOrderDetail[this.durgIndex]);
+    } else {
+      // console.log(this.arrMedError);
+      this.arrMedError = this.arrMedError.filter((e) => {
+        return e.drugCode !== this.listOrderDetail[data]['drugCode'];
+      });
+      this.listOrderDetail[this.durgIndex]['CF'] = 0;
+      // console.log(this.arrMedError);
+    }
+  }
+
+  clickCheckAll() {
     this.arrMedError = [];
     this.checkAll = ~this.checkAll + 2;
-    this.orderRequest.status === 'edit' ? (this.checkAll = 1) : '';
-
+    // this.orderRequest.status === 'edit' ? (this.checkAll = 1) : '';
     this.listOrderDetail.forEach((e) => {
       e['CF'] = this.checkAll;
     });
@@ -1006,7 +896,7 @@ export class CheckRequestComponent implements OnInit {
     this.dataOrderDetail.paginator = this.paginOrderDetail;
   }
 
-  drugFalse(e: any) {
+  setMedErr(e: any) {
     this.formPE = {
       type: '',
       oper: '',
@@ -1036,6 +926,67 @@ export class CheckRequestComponent implements OnInit {
     this.setPDproc = null;
     this.setPDprod = null;
     _window.$(`#medErrorModal`).modal('show');
+  }
+
+  submitMedErr() {
+    // console.log(this.setMedError);
+    // console.log(this.formPE);
+    // console.log(this.formPD);
+
+    let check: any = '';
+    let x = {
+      reqNo: this.orderRequest.reqNo,
+      drugCode: this.setMedError.drugCode,
+      drugName: this.setMedError.drugName,
+      drugUse:
+        this.setMedError.lamed1 +
+        ' ' +
+        this.setMedError.lamed2 +
+        ' ' +
+        this.setMedError.lamed3 +
+        ' ' +
+        this.setMedError.lamed4 +
+        ' ' +
+        this.setMedError.lamed5,
+      drugQty: this.setMedError.qtyReq,
+      pe_type: this.formPE.type,
+      pe_oper: this.formPE.oper,
+      pe_seve: this.formPE.seve,
+      pe_name: this.formPE.name,
+      pe_use: this.formPE.use,
+      pe_qty: this.formPE.qty,
+      pd_type: this.formPD.type,
+      pd_type_note: this.formPD.type_note,
+      pd_pers: this.formPD.pers,
+      pd_cond: this.formPD.cond,
+      pd_cond_note: this.formPD.cond_note,
+      pd_proc: this.formPD.proc,
+      pd_proc_note: this.formPD.proc_note,
+      pd_prod: this.formPD.prod,
+      pd_prod_note: this.formPD.prod_note,
+      maker: this.userID,
+    };
+    (check += this.formPE.type),
+      (check += this.formPE.oper),
+      (check += this.formPE.seve),
+      (check += this.formPD.type),
+      (check += this.formPD.pers),
+      (check += this.formPD.cond),
+      (check += this.formPD.proc);
+    if (check === '') {
+      this.services.alert('warning', 'กรุณากรอกข้อมูล', '');
+    } else {
+      this.services
+        .confirm('warning', 'ยืนยันการบันทึก Med Error', '')
+        .then((val: any) => {
+          if (val) {
+            this.listOrderDetail[this.durgIndex]['CF'] = 2;
+            this.arrMedError.push(x);
+            // console.log(this.arrMedError);
+            _window.$(`#medErrorModal`).modal('hide');
+          }
+        });
+    }
   }
 
   getPharmacistNote() {
@@ -1107,7 +1058,7 @@ export class CheckRequestComponent implements OnInit {
     });
   };
 
-  checkDrug = async (e: any) => {
+  selectDrugPN = async (e: any) => {
     // console.log(e);
     // this.listDrugPN.forEach((i) => {
     //   if (i.drugCode === e.drugCode) {
@@ -1182,122 +1133,146 @@ export class CheckRequestComponent implements OnInit {
   };
 
   submitPN() {
-    // console.log(this.PN_prescription);
-    this.formPN.prescription = '';
-    let drugNote = 'เนื่องจากยา <u>' + this.formPN.drug + '</u><br><br>';
-    let x_code = '';
-    let x_head = '';
-    let x_body = '';
-    this.PN_prescription.forEach((el) => {
-      if (el.checkbox === 1) {
-        x_head = '<b><u>คำสั่งใช้ยา</u></b><br>';
-        x_code = el.code + ':' + el.note + ',';
-        x_body += ' - ' + el.name1;
-        el.note !== null ? (x_body += ' <u>' + el.note + '</u> ') : '';
-        el.name2 !== null ? (x_body += el.name2) : '';
-        x_body += '<br>';
-        this.formPN.prescription += x_code;
-      }
-    });
-    this.formPN.docc = '';
-    let y_code = '';
-    let y_head = '';
-    let y_body = '';
-    this.PN_docc.forEach((el) => {
-      if (el.checkbox === 1) {
-        y_head = '<b><u>เอกสารประกอบการสั่งใช้ยา</u></b><br>';
-        y_code = el.code + ':' + el.note + ',';
-        y_body += ' - ' + el.name1;
-        el.note !== null ? (y_body += ' <u>' + el.note + '</u> ') : '';
-        el.name2 !== null ? (y_body += el.name2) : '';
-        y_body += '<br>';
-        this.formPN.docc += y_code;
-      }
-    });
-    this.formPN.previous = '';
-    let z_code = '';
-    let z_head = '';
-    let z_body = '';
-    this.PN_previous.forEach((el) => {
-      if (el.checkbox === 1) {
-        z_head = '<b><u>ยาเดิมผู้ป่วย</u></b><br>';
-        z_code = el.code + ':' + el.note + ',';
-        z_body += ' - ' + el.name1;
-        el.note !== null ? (z_body += ' <u>' + el.note + '</u> ') : '';
-        el.name2 !== null ? (z_body += el.name2) : '';
-        z_body += '<br>';
-        this.formPN.previous += z_code;
-      }
-    });
-    // console.log(this.formPN);
+    if (this.formPN.drug === '') {
+      this.services.alert('warning', 'กรุณาเลือกยา', '');
+    } else {
+      this.services
+        .confirm('warning', 'ยืนยันการบันทึก', 'Pharmacist Note')
+        .then((val: any) => {
+          if (val) {
+            this.formPN.prescription = '';
+            let drugNote =
+              'เนื่องจากยา <u>' + this.formPN.drug + '</u><br><br>';
+            let x_code = '';
+            let x_head = '';
+            let x_body = '';
+            this.PN_prescription.forEach((el) => {
+              if (el.checkbox === 1) {
+                x_head = '<b><u>คำสั่งใช้ยา</u></b><br>';
+                x_code = el.code + ':' + el.note + ';';
+                x_body += ' - ' + el.name1;
+                el.note !== null ? (x_body += ' <u>' + el.note + '</u> ') : '';
+                el.name2 !== null ? (x_body += el.name2) : '';
+                x_body += '<br>';
+                this.formPN.prescription += x_code;
+              }
+            });
+            this.formPN.docc = '';
+            let y_code = '';
+            let y_head = '';
+            let y_body = '';
+            this.PN_docc.forEach((el) => {
+              if (el.checkbox === 1) {
+                y_head = '<b><u>เอกสารประกอบการสั่งใช้ยา</u></b><br>';
+                y_code = el.code + ':' + el.note + ';';
+                y_body += ' - ' + el.name1;
+                el.note !== null ? (y_body += ' <u>' + el.note + '</u> ') : '';
+                el.name2 !== null ? (y_body += el.name2) : '';
+                y_body += '<br>';
+                this.formPN.docc += y_code;
+              }
+            });
+            this.formPN.previous = '';
+            let z_code = '';
+            let z_head = '';
+            let z_body = '';
+            this.PN_previous.forEach((el) => {
+              if (el.checkbox === 1) {
+                z_head = '<b><u>ยาเดิมผู้ป่วย</u></b><br>';
+                z_code = el.code + ':' + el.note + ';';
+                z_body += ' - ' + el.name1;
+                el.note !== null ? (z_body += ' <u>' + el.note + '</u> ') : '';
+                el.name2 !== null ? (z_body += el.name2) : '';
+                z_body += '<br>';
+                this.formPN.previous += z_code;
+              }
+            });
+            // console.log(this.formPN);
 
-    let key = new FormData();
-    key.append('reqNo', this.orderRequest.reqNo);
-    key.append('drugCode', this.formPN.drug);
-    key.append('prescription', this.formPN.prescription);
-    key.append('docc', this.formPN.docc);
-    key.append('previous', this.formPN.previous);
-    key.append('marker', this.userID);
-    // key.forEach((value, key) => {
-    //   console.log(key + ' : ' + value);
-    // });
-    this.services.post('DrugIden/insertPN', key).then((value: any) => {
-      // console.log(value);
-      if (value.connect) {
-        if (value.rowCount > 0) {
-          this.getPharmacistNote();
-          _window.$(`#pharmacistNote`).modal('hide');
-          this.services.alertTimer('success', 'บันทึกข้อมูลสำเร็จ', '');
-          this.formPN = {
-            drug: '',
-            prescription: '',
-            docc: '',
-            previous: '',
-          };
-        }
-      } else {
-        this.services.alert(
-          'error',
-          'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-          'โปรดติดต่อผู้ดูแลระบบ'
-        );
-      }
-    });
-    const headPrint = document.getElementById('headPrint');
-    const footPrint = document.getElementById('footPrint');
-    const print = window.open('', '', 'height=600, width=800');
-    if (headPrint && footPrint) {
-      const headContert = headPrint.innerHTML;
-      const footContent = footPrint.innerHTML;
-      if (print) {
-        print.document.write(
-          '<html><head><title>Pharmacist Note</title></head><body>'
-        );
-        print.document.write(
-          '<h2 style="text-align: center;">Pharmacist Note</h2>'
-        );
-        print.document.write(headContert);
-        print.document.write(drugNote);
-        if (x_head) {
-          print.document.write(x_head);
-          print.document.write(x_body);
-          print.document.write('<br>');
-        }
-        if (y_head) {
-          print.document.write(y_head);
-          print.document.write(y_body);
-          print.document.write('<br>');
-        }
-        if (z_head) {
-          print.document.write(z_head);
-          print.document.write(z_body);
-          print.document.write('<br>');
-        }
-        print.document.write(footContent);
-        print.document.write('</body></html>');
-        print.document.close();
-        print.print();
-      }
+            if (
+              this.formPN.prescription.length > 0 ||
+              this.formPN.docc.length > 0 ||
+              this.formPN.previous.length > 0
+            ) {
+              let key = new FormData();
+              key.append('reqNo', this.orderRequest.reqNo);
+              key.append('drugCode', this.formPN.drug);
+              key.append('prescription', this.formPN.prescription);
+              key.append('docc', this.formPN.docc);
+              key.append('previous', this.formPN.previous);
+              key.append('marker', this.userID);
+              // key.forEach((value, key) => {
+              //   console.log(key + ' : ' + value);
+              // });
+              this.services
+                .post('DrugIden/insertPN', key)
+                .then((value: any) => {
+                  // console.log(value);
+                  if (value.connect) {
+                    if (value.rowCount > 0) {
+                      this.getPharmacistNote();
+                      _window.$(`#pharmacistNote`).modal('hide');
+                      this.services.alertTimer(
+                        'success',
+                        'บันทึกข้อมูลสำเร็จ',
+                        ''
+                      );
+                      this.formPN = {
+                        drug: '',
+                        prescription: '',
+                        docc: '',
+                        previous: '',
+                      };
+                    }
+                  } else {
+                    this.services.alert(
+                      'error',
+                      'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                      'โปรดติดต่อผู้ดูแลระบบ'
+                    );
+                  }
+                });
+              const headPrint = document.getElementById('headPrint');
+              const footPrint = document.getElementById('footPrint');
+              const print = window.open('', '', 'height=600, width=800');
+              if (headPrint && footPrint) {
+                const headContert = headPrint.innerHTML;
+                const footContent = footPrint.innerHTML;
+                if (print) {
+                  print.document.write(
+                    '<html><head><title>Pharmacist Note</title></head><body>'
+                  );
+                  print.document.write(
+                    '<h2 style="text-align: center;">Pharmacist Note</h2>'
+                  );
+                  print.document.write(headContert);
+                  print.document.write(drugNote);
+                  if (x_head) {
+                    print.document.write(x_head);
+                    print.document.write(x_body);
+                    print.document.write('<br>');
+                  }
+                  if (y_head) {
+                    print.document.write(y_head);
+                    print.document.write(y_body);
+                    print.document.write('<br>');
+                  }
+                  if (z_head) {
+                    print.document.write(z_head);
+                    print.document.write(z_body);
+                    print.document.write('<br>');
+                  }
+                  print.document.write(footContent);
+                  print.document.write('</body></html>');
+                  print.document.close();
+                  print.print();
+                }
+              }
+            } else {
+              this.services.alert('warning', 'กรุณากรอกรายละเอียด', '');
+            }
+          }
+        });
     }
   }
 
@@ -1376,7 +1351,7 @@ export class CheckRequestComponent implements OnInit {
       if (value.connect) {
         if (value.rowCount > 0) {
           this.PD_type = value.result;
-          // console.log(this.PD_pers);
+          // console.log(this.PD_type);
         }
       } else {
         this.services.alert(
@@ -1489,47 +1464,6 @@ export class CheckRequestComponent implements OnInit {
     this.formPD.prod = e.value;
   }
 
-  errorSubmit() {
-    // console.log(this.setMedError);
-    // console.log(this.formPE);
-    // console.log(this.formPD);
-    let json = {
-      reqNo: this.orderRequest.reqNo,
-      drugCode: this.setMedError.drugCode,
-      drugName: this.setMedError.drugName,
-      drugUse:
-        this.setMedError.lamed1 +
-        ' ' +
-        this.setMedError.lamed2 +
-        ' ' +
-        this.setMedError.lamed3 +
-        ' ' +
-        this.setMedError.lamed4 +
-        ' ' +
-        this.setMedError.lamed5,
-      drugQty: this.setMedError.qtyReq,
-      pe_type: this.formPE.type,
-      pe_oper: this.formPE.oper,
-      pe_seve: this.formPE.seve,
-      pe_name: this.formPE.name,
-      pe_use: this.formPE.use,
-      pe_qty: this.formPE.qty,
-      pd_type: this.formPD.type,
-      pd_type_note: this.formPD.type_note,
-      pd_pers: this.formPD.pers,
-      pd_cond: this.formPD.cond,
-      pd_cond_note: this.formPD.cond_note,
-      pd_proc: this.formPD.proc,
-      pd_proc_note: this.formPD.proc_note,
-      pd_prod: this.formPD.prod,
-      pd_prod_note: this.formPD.prod_note,
-      maker: this.userID,
-    };
-    this.arrMedError.push(json);
-    this.listOrderDetail[this.setMedError.row_number - 1]['CF'] = 2;
-    _window.$(`#medErrorModal`).modal('hide');
-  }
-
   preCheck() {
     let numCheck = 0;
     this.listOrderDetail.forEach((el) => {
@@ -1553,7 +1487,7 @@ export class CheckRequestComponent implements OnInit {
   submitError() {
     if (this.preCheck()) {
       this.services
-        .confirm('warning', 'ส่งแก้ไข', 'ยืนยันการบันทึกข้อมูล')
+        .confirm('warning', 'ยืนยันการส่งแก้ไข', '')
         .then((val: any) => {
           if (val) {
             // console.log(this.arrMedError);
@@ -1678,8 +1612,12 @@ export class CheckRequestComponent implements OnInit {
     }
   }
 
-  submitAgian(){
-    this.insertReq();
+  submitAgian() {
+    this.services.confirm('warning', 'ยืนยันการส่งซ้ำ', '').then((val: any) => {
+      if (val) {
+        this.insertReq();
+      }
+    });
   }
 
   insertReq() {
@@ -1696,157 +1634,434 @@ export class CheckRequestComponent implements OnInit {
         'โปรดตรวจสอบรายการยาให้ครบถ้วน'
       );
     } else {
-      let req = new FormData();
-      req.append('reqNo', this.orderRequest.reqNo);
-      req.append('hn', this.orderRequest.hn);
-      req.append('maker', this.userID);
-      if (this.orderRequest.status === 'wait') {
-        this.services.post('DrugIden/insertReqDone', req).then((value: any) => {
-          // console.log(value);
-          if (value.connect) {
-            if (value.rowCount > 0) {
-              this.services.alertTimer('success', 'บันทึกข้อมูลสำเร็จ', '');
-              this.HnToRequest(this.orderRequest.hn);
-              this.back();
-            }
-          } else {
-            this.services.alert(
-              'error',
-              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-              'โปรดติดต่อผู้ดูแลระบบ'
-            );
-          }
-        });
-      } else {
-        this.services.post('DrugIden/updateReqDone', req).then((value: any) => {
-          // console.log(value);
-          if (value.connect) {
-            if (value.rowCount > 0) {
-              this.services.alertTimer('success', 'บันทึกข้อมูลสำเร็จ', '');
-              this.HnToRequest(this.orderRequest.hn);
-              this.back();
-            }
-          } else {
-            this.services.alert(
-              'error',
-              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-              'โปรดติดต่อผู้ดูแลระบบ'
-            );
-          }
-        });
+      this.listOrderDetail.forEach((el) => {});
+    }
+  }
+
+  submitReq() {
+    // console.log(this.listOrderDetail);
+    // console.log(this.arrMedError);
+    let check = false;
+    this.listOrderDetail.forEach((e) => {
+      if (e.CF !== 0) {
+        check = true;
       }
-      let printStatus: any;
-      this.orderRequest.status === 'done'
-        ? (printStatus = 3)
-        : (printStatus = 0);
-      this.listOrderDetail.forEach((el) => {
-        let key = new FormData();
-        key.append('reqNo', this.orderRequest.reqNo);
-        key.append('maker', this.userID);
-        key.append('wardCode', this.orderRequest.wardCode);
-        key.append('drugStatus', el.CF);
-        key.append('drugCode', el.drugCode);
-        key.append('runNo', el.runNo);
-        key.append('lastRunNo', this.orderRequest.lastRunNo);
-        key.append(
-          'preDate',
-          this.formatValToDateEn(this.formatDateEnToVal(this.currentDate))
-        );
-        key.append('hn', this.orderRequest.hn);
-        key.append('an', this.orderRequest.an);
-        key.append(
-          'name',
-          this.orderRequest.titlename +
-            ' ' +
-            this.orderRequest.firstname +
-            ' ' +
-            this.orderRequest.lastname
-        );
-        key.append(
-          'Birthday',
-          this.formatValToDateEn(this.orderRequest.birthDay)
-        );
-        this.orderRequest.sex == 'ช'
-          ? key.append('Sex', 'M')
-          : key.append('Sex', 'F');
-        key.append('drugName', el.drugName);
-        key.append('qtyReq', el.qtyReq);
-        key.append('unit', el.unit);
-        key.append('qtyDay', el.lamed2);
-        key.append(
-          'Freq_Desc',
-          el.lamed1 +
-            ' ' +
-            el.lamed2 +
-            ' ' +
-            el.lamed3 +
-            ' ' +
-            el.lamed4 +
-            ' ' +
-            el.lamed5
-        );
-        key.append('wardcode', this.orderRequest.wardcode);
-        key.append('ward_name', this.orderRequest.ward_name);
-        key.append('bedcode', this.orderRequest.bedcode);
-        key.append('Freetext1', el.lamed1 + ' ' + el.lamed2 + ' ' + el.lamed3);
-        key.append('Freetext2', el.lamed4);
-        key.append('Freetext4', el.lamed5);
-        key.append('printStatus', printStatus);
-        // key.forEach((value, key) => {
-        //   console.log(key + ' : ' + value);
-        // });
-        if (el.reqNo === this.orderRequest.reqNo) {
-          if (this.orderRequest.status === 'wait') {
-            this.services
-              .post('DrugIden/insertReqDetial', key)
-              .then((value: any) => {
-                // console.log(value);
-                if (value.connect) {
-                } else {
-                  this.services.alert(
-                    'error',
-                    'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                    'โปรดติดต่อผู้ดูแลระบบ'
-                  );
-                }
-              });
-          } else {
-            this.services
-              .post('DrugIden/updateReqDetial', key)
-              .then((value: any) => {
-                // console.log(value);
-                if (value.connect) {
-                } else {
-                  this.services.alert(
-                    'error',
-                    'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                    'โปรดติดต่อผู้ดูแลระบบ'
-                  );
-                }
-              });
-          }        
-          if (
-            this.orderRequest.reqType !== 'HOME MED' &&
-            parseInt(el.CF) === 1 &&
-            el.medFloorStock === 'Y' &&
-            parseInt(el.qtyReq) > 0
-          ) {
-            this.services
-              .post('DrugIden/medFloorStock', key)
-              .then((value: any) => {
-                // console.log(value);
-                if (value.connect) {
-                } else {
-                  this.services.alert(
-                    'error',
-                    'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
-                    'โปรดติดต่อผู้ดูแลระบบ'
-                  );
-                }
-              });
+    });
+    if (check) {
+      this.services
+        .confirm('warning', 'ยืนยันการบันทึกข้อมูล', '')
+        .then((val: any) => {
+          if (val) {
+            this.updateReq();
+            if (this.arrMedError.length > 0) {
+              this.insertMedError();
+            }
           }
+        });
+    } else {
+      this.services.alert('warning', 'ยังไม่ได้เช็ครายการ');
+    }
+  }
+
+  updateReq() {
+    this.listOrderDetail.forEach((el) => {
+      if (el.reqNo === this.orderRequest.reqNo) {
+        let key = new FormData();
+        key.append('reqNo', el.reqNo);
+        key.append('drugCode', el.drugCode);
+        key.append('drugStatus', el.CF);
+        this.services.post('DrugIden/updateReqD', key).then((value: any) => {
+          // console.log(value);
+          if (value.connect) {
+          } else {
+            this.services.alert(
+              'error',
+              'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+              'โปรดติดต่อผู้ดูแลระบบ'
+            );
+          }
+        });
+        if (
+          el.disppen === 'N' &&
+          el.medCheck === 'MedDispens' &&
+          parseInt(el.CF) === 1 &&
+          parseInt(el.qtyReq) > 0
+        ) {
+          key.append('runNo', el.runNo);
+          key.append('lastRunNo', this.orderRequest.lastRunNo);
+          key.append(
+            'preDate',
+            this.formatValToDateEn(this.formatDateEnToVal(this.currentDate))
+          );
+          key.append('hn', this.orderRequest.hn);
+          key.append('an', this.orderRequest.an);
+          key.append(
+            'name',
+            this.orderRequest.titlename +
+              ' ' +
+              this.orderRequest.firstname +
+              ' ' +
+              this.orderRequest.lastname
+          );
+          key.append(
+            'Birthday',
+            this.formatValToDateEn(this.orderRequest.birthDay)
+          );
+          this.orderRequest.sex == 'ช'
+            ? key.append('Sex', 'M')
+            : key.append('Sex', 'F');
+          key.append('drugName', el.drugName);
+          key.append('qtyReq', el.qtyReq);
+          key.append('unit', el.unit);
+          key.append('qtyDay', el.lamed2);
+          key.append(
+            'Freq_Desc',
+            el.lamed1 +
+              ' ' +
+              el.lamed2 +
+              ' ' +
+              el.lamed3 +
+              ' ' +
+              el.lamed4 +
+              ' ' +
+              el.lamed5
+          );
+          key.append('wardcode', this.orderRequest.wardcode);
+          key.append('ward_name', this.orderRequest.ward_name);
+          key.append('bedcode', this.orderRequest.bedcode);
+          key.append(
+            'Freetext1',
+            el.lamed1 + ' ' + el.lamed2 + ' ' + el.lamed3
+          );
+          key.append('Freetext2', el.lamed4);
+          key.append('Freetext4', el.lamed5);
+          key.append('timeCode', el.timeCode);
+          key.append('printStatus', '0');
+          key.append('sender', this.userID);
+          this.services
+            .post('DrugIden/meddispenLog', key)
+            .then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
+          this.services
+            .post('DrugIden/sendMedDispens', key)
+            .then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
+        }
+      }
+    });
+    let req = new FormData();
+    req.append('reqNo', this.orderRequest.reqNo);
+    req.append('hn', this.orderRequest.hn);
+    req.append('checked', this.userID);
+    this.services.post('DrugIden/updateReqH', req).then((value: any) => {
+      // console.log(value);
+      if (value.connect) {
+        if (value.rowCount > 0) {
+          this.services.alertTimer('success', 'บันทึกข้อมูลสำเร็จ', '');
+          this.HnToRequest(this.orderRequest.hn);
+          this.back();
+        }
+      } else {
+        this.services.alert(
+          'error',
+          'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+          'โปรดติดต่อผู้ดูแลระบบ'
+        );
+      }
+    });
+  }
+
+  insertMedError() {
+    this.arrMedError.forEach((el) => {
+      let key = new FormData();
+      key.append('reqNo', el.reqNo);
+      key.append('hn', this.orderRequest.hn);
+      key.append('maker', this.userID);
+      key.append('drugCode', el.drugCode);
+      key.append('drugName', el.drugName);
+      key.append('drugUse', el.drugUse);
+      key.append('drugQty', el.drugQty);
+      //PE
+      key.append('pe_type', el.pe_type);
+      key.append('pe_oper', el.pe_oper);
+      key.append('pe_seve', el.pe_seve);
+      key.append('pe_name', el.pe_name);
+      key.append('pe_use', el.pe_use);
+      key.append('pe_qty', el.pe_qty);
+      //PD
+      key.append('pd_type', el.pd_type);
+      key.append('pd_type_note', el.pd_type_note);
+      key.append('pd_pers', el.pd_pers);
+      key.append('pd_cond', el.pd_cond);
+      key.append('pd_cond_note', el.pd_cond_note);
+      key.append('pd_proc', el.pd_proc);
+      key.append('pd_proc_note', el.pd_proc_note);
+      key.append('pd_prod', el.pd_prod);
+      key.append('pd_prod_note', el.pd_prod_note);
+      // key.forEach((value, key) => {
+      //   console.log(key + ' : ' + value);
+      // });
+
+      this.services.post('DrugIden/insertPEerror', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
         }
       });
+      this.services.post('DrugIden/insertPDerror', key).then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+    });
+  }
+
+  dispenAgain(el: any) {
+    // console.log(el);
+    this.services
+      .confirm('warning', el.drugName, 'ส่ง Med Dispensing อีกครั้ง')
+      .then((val: any) => {
+        if (val) {
+          let key = new FormData();
+          key.append('reqNo', el.reqNo);
+          key.append('drugCode', el.drugCode);
+          key.append('drugStatus', el.CF);
+
+          key.append('runNo', el.runNo);
+          key.append('lastRunNo', this.orderRequest.lastRunNo);
+          key.append('preDate', this.orderRequest.lastIssDate);
+          key.append('hn', this.orderRequest.hn);
+          key.append('an', this.orderRequest.an);
+          key.append(
+            'name',
+            this.orderRequest.titlename +
+              ' ' +
+              this.orderRequest.firstname +
+              ' ' +
+              this.orderRequest.lastname
+          );
+          key.append(
+            'Birthday',
+            this.formatValToDateEn(this.orderRequest.birthDay)
+          );
+          this.orderRequest.sex == 'ช'
+            ? key.append('Sex', 'M')
+            : key.append('Sex', 'F');
+          key.append('drugName', el.drugName);
+          key.append('qtyReq', el.qtyReq);
+          key.append('unit', el.unit);
+          key.append('qtyDay', el.lamed2);
+          key.append(
+            'Freq_Desc',
+            el.lamed1 +
+              ' ' +
+              el.lamed2 +
+              ' ' +
+              el.lamed3 +
+              ' ' +
+              el.lamed4 +
+              ' ' +
+              el.lamed5
+          );
+          key.append('wardcode', this.orderRequest.wardcode);
+          key.append('ward_name', this.orderRequest.ward_name);
+          key.append('bedcode', this.orderRequest.bedcode);
+          key.append(
+            'Freetext1',
+            el.lamed1 + ' ' + el.lamed2 + ' ' + el.lamed3
+          );
+          key.append('Freetext2', el.lamed4);
+          key.append('Freetext4', el.lamed5);
+          key.append('timeCode', el.timeCode);
+          key.append('printStatus', '3');
+          key.append('sender', this.userID);
+          // key.forEach((value, key) => {
+          //   console.log(key + ' : ' + value);
+          // });
+          this.services
+            .post('DrugIden/meddispenLog', key)
+            .then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
+          this.services
+            .post('DrugIden/sendMedDispens', key)
+            .then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+                this.services.alertTimer('success', 'ส่งซ้ำสำเร็จ', '');
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
+        }
+      });
+  }
+
+  selectedDrug: any;
+  selectDrug(drug: any) {
+    this.selectedDrug = drug;
+    // console.log(drug);
+    let formData = new FormData();
+    formData.append('ip', this.ip);
+    formData.append('img', drug.img);
+    formData.append('drugCode', drug.drugCode);
+    formData.append('drugName', drug.drugName);
+    let lamed1 = '';
+    let lamed2 = '';
+    if (drug.lamed1) {
+      lamed1 =
+        drug.lamed1 + ' ' + drug.lamed2 + ' ' + drug.lamed3 + ' ' + drug.lamed4;
+      lamed2 = drug.lamed5;
     }
+    formData.append('lamed1', lamed1);
+    formData.append('lamed2', lamed2);
+    // formData.forEach((value, key) => {
+    //   console.log(key + ' : ' + value);
+    // });
+    this.services
+      .post('DrugIden/deleteDisplay', formData)
+      .then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+          this.services
+            .post('DrugIden/insertDisplay', formData)
+            .then((value: any) => {
+              // console.log(value);
+              if (value.connect) {
+              } else {
+                this.services.alert(
+                  'error',
+                  'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+                  'โปรดติดต่อผู้ดูแลระบบ'
+                );
+              }
+            });
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+  }
+
+  clearHMed() {
+    this.selectedDrug = null;
+    let formData = new FormData();
+    formData.append('ip', this.ip);
+    this.services
+      .post('DrugIden/deleteDisplay', formData)
+      .then((value: any) => {
+        // console.log(value);
+        if (value.connect) {
+        } else {
+          this.services.alert(
+            'error',
+            'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+            'โปรดติดต่อผู้ดูแลระบบ'
+          );
+        }
+      });
+  }
+
+  openLinkInNewWindow() {
+    const windowFeatures = 'width=800,height=600,top=100,left=100';
+    window.open(
+      this.services.localPath + 'Homemed/Display',
+      '_blank',
+      windowFeatures
+    );
+  }
+
+  getAllDrug() {
+    this.listAllDrug = [];
+    this.dataAllDrug = null;
+    this.services.get('DrugIden/allDrugHomeC').then((value: any) => {
+      // console.log(value);
+      if (value.connect) {
+        this.listAllDrug = value['result'];
+        // console.log(this.listAllDrug);
+        this.listAllDrug.forEach((e) => {
+          this.services.getImg(e.drugCode).then((value: any) => {
+            // console.log(value);
+            if (value.connect) {
+              if (value[0]) {
+                let arr = value;
+                let maxKey = -Infinity;
+                for (const key in arr) {
+                  if (!isNaN(Number(key)) && Number(key) > maxKey) {
+                    maxKey = Number(key);
+                  }
+                }
+                // console.log(maxKey);
+                const imgPath = arr[maxKey]['pathImage'].substring(
+                  arr[maxKey]['pathImage'].indexOf(
+                    'api/assets/drug-imagecenter'
+                  )
+                );
+                // console.log(this.services.rootPath + imgPath);
+                e.img = this.services.rootPath + imgPath;
+              }
+            }
+          });
+        });
+        this.dataAllDrug = new MatTableDataSource(this.listAllDrug);
+        this.dataAllDrug.sort = this.sortAlldrug;
+        this.dataAllDrug.paginator = this.paginatorAllDrug;
+      } else {
+        this.services.alert(
+          'error',
+          'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้',
+          'โปรดติดต่อผู้ดูแลระบบ'
+        );
+      }
+    });
+  }
+
+  drugFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataAllDrug.filter = filterValue.trim().toLowerCase();
   }
 }

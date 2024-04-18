@@ -1,0 +1,135 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid">
+  <div class="card">
+    <div class="row mid">
+      <div class="col-md-auto">
+        <mat-form-field appearance="legacy">
+          <mat-label>รายงาน</mat-label>
+          <mat-select required (selectionChange)="changeReport($event)">
+            <mat-option *ngFor="let x of listReport" [value]="x">
+              {{ x.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-auto">
+        <form [formGroup]="campaign">
+          <mat-form-field>
+            <mat-label>เลือกวัน</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              formControlName="picker"
+              (dateChange)="dateChange($event)"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </form>
+      </div>
+      <div class="col-md-auto">
+        <mat-form-field appearance="legacy">
+          <mat-label>ช่วงเวลา</mat-label>
+          <mat-select required (selectionChange)="changeTime($event)">
+            <mat-option *ngFor="let x of listTime" [value]="x">
+              {{ x.time }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-auto" *ngIf="selectReport === 'item'">
+        <mat-form-field appearance="standard">
+          <mat-label>เลือกหอผู้ป่วย</mat-label>
+          <mat-select (selectionChange)="changeWard($event)">
+            <mat-option *ngFor="let x of listWard" [value]="x.ward_id">
+              {{ x.ward_id }} - {{ x.ward_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-auto" *ngIf="selectReport === 'hn'">
+        <mat-form-field appearance="standard">
+          <mat-label>hn</mat-label>
+          <input
+            matInput
+            type="text"
+            (keyup.enter)="hnAddictive(swiper.value)"
+            #swiper
+          />
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <div class="card" [hidden]="dataItem">
+    <div class="center"><h2>ไม่พบข้อมูล</h2></div>
+  </div>
+  <div class="card" [hidden]="!dataItem">
+    <table
+      class="table-striped"
+      mat-table
+      [dataSource]="dataItem"
+      #sortItem="matSort"
+      matSort
+      matSortActive=""
+      matSortDirection="asc"
+      matTableExporter
+      #exporter1="matTableExporter"
+    >
+      <ng-container matColumnDef="drugName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>รายการยา</th>
+        <td mat-cell *matCellDef="let element" class="">
+          {{ element.drugName }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="totalReturn">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวนรวม</th>
+        <td mat-cell *matCellDef="let element" class="center">
+          {{ element.totalReturn | number }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="totalPrice">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>มูลค่ารวม</th>
+        <td mat-cell *matCellDef="let element" class="center">
+          {{ element.totalPrice | number }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayItem; sticky: true"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayItem; let element"
+        class="pointer"
+      ></tr>
+    </table>
+    <div class="row mid">
+      <div class="col">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="
+            exporter1.exportTable('xlsx', {
+              fileName: 'รายงานยาคืนหอผู้ป่วย_' + selectWard,
+              sheet: 'sheet1',
+              Props: { Author: 'Talha' }
+            })
+          "
+        >
+          ส่งออกไฟล์
+        </button>
+      </div>
+      <div class="col-md-auto">
+        <mat-paginator
+          #paginItem="matPaginator"
+          [length]="10"
+          [pageSize]="10"
+          [pageSizeOptions]="[10, 25, 50]"
+          showFirstLastButtons
+        >
+        </mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>

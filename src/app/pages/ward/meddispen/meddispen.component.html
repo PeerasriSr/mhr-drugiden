@@ -1,0 +1,73 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid">
+  <div class="card">
+    <div class="row mid">
+      <div class="col-md-auto">
+        <h2>ออเดอร์ Med Dispensing</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="card center" [hidden]="dataOrder">
+    <h2>ไม่พบออเดอร์</h2>
+  </div>
+  <div class="card" [hidden]="!dataOrder">
+    <table
+      class="table-striped"
+      mat-table
+      [dataSource]="dataOrder"
+      #sortOrder="matSort"
+      matSort
+      matSortActive=""
+      matSortDirection="asc"
+    >
+      <ng-container matColumnDef="PrescriptionNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ใบสั่งยา</th>
+        <td mat-cell *matCellDef="let element" class="">
+          {{ element.PrescriptionNo }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="Hn">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>HN</th>
+        <td mat-cell *matCellDef="let element" class="">
+          {{ element.Hn }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="PatientName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ชื่อคนไข้</th>
+        <td mat-cell *matCellDef="let element" class="">
+          {{ element.PatientName }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="BedNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>เตียง</th>
+        <td mat-cell *matCellDef="let element" class="center">
+          {{ element.BedNo }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="NumItem">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวนรายการยา</th>
+        <td mat-cell *matCellDef="let element" class="center">
+          {{ element.NumItem }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="LastModify">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>เวลาส่ง</th>
+        <td mat-cell *matCellDef="let element" class="center">
+          {{ element.LastModify }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayOrder; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayOrder; let element"></tr>
+    </table>
+    <mat-paginator
+      #paginOrder="matPaginator"
+      [length]="10"
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 25, 50]"
+      showFirstLastButtons
+    >
+    </mat-paginator>
+  </div>
+</div>

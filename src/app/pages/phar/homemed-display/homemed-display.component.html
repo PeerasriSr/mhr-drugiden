@@ -1,0 +1,16 @@
+<div class="container-fluid center pt-4" *ngIf="homeMed">
+  <img [src]="homeMed.img" alt="รูปภาพ" class="imgDrug" />
+  <div class="detail mt-4">
+    {{ homeMed.drugName }}
+  </div>
+  <div class="detail" *ngIf="homeMed.lamed1">
+    {{ homeMed.lamed1 }}
+  </div>
+  <div class="detail" *ngIf="homeMed.lamed2">
+    {{ homeMed.lamed2 }}
+  </div>
+</div>
+<div [hidden]="homeMed" class="center">
+  <!-- <img src="/assets/img/wait.gif" alt="Your GIF Image" /> -->
+  <img src="/DrugIdentification/assets/img/wait.gif" alt="Your GIF Image" />
+</div>

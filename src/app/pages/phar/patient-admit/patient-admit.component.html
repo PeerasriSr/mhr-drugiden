@@ -1,0 +1,403 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid">
+  <div class="card">
+    <div class="row mid" *ngIf="allPatient">
+      <div class="col-md-auto">
+        <h2>คนไข้รับใหม่ {{ siteName }}</h2>
+      </div>
+
+      <!-- <div class="col-md-auto">
+      <h2>พบข้อมูลแพ้ยานอก รพ. {{listPatient.length}}</h2>
+    </div> -->
+    </div>
+  </div>
+  <div class="card center" [hidden]="dataFocus">
+    <h2>ไม่พบข้อมูลแพ้ยาใหม่</h2>
+  </div>
+  <div class="card" [hidden]="!dataFocus">
+    <mat-tab-group>
+      <mat-tab label="ข้อมูลแพ้ยาที่ต้องเพิ่ม ({{ focusPatient.length }})">
+        <table
+          class="table-striped"
+          mat-table
+          [dataSource]="dataFocus"
+          #sortFocus="matSort"
+          matSort
+          matSortActive=""
+          matSortDirection="asc"
+        >
+          <ng-container matColumnDef="admit_date_en">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              วันที่
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.admit_date_en }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="admit_time_en">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              เวลา
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.admit_time_en }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hn">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              HN
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.hn }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ชื่อ-สกุล
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.firstName }}
+              {{ element.lastName }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="in_allergy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              แพ้ยาใน รพ. (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.in_allergy }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="out_allergy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              แพ้ยานอก รพ. (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.out_allergy }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="matches">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ตรงกัน (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.matches }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="notmatch">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ต้องเพิ่ม (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.notmatch }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayFocus"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayFocus; let element"
+            class="pointer"
+            (click)="selectPat(element)"
+          ></tr>
+        </table>
+        <div class="row mid">
+          <div class="col pl-2">
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="exportAllAllergy()"
+            >
+              ส่งออกรายการที่ต้องเพิ่ม
+            </button>
+          </div>
+          <div class="col-md-auto">
+            <mat-paginator
+              #paginatorFocus="matPaginator"
+              [length]="10"
+              [pageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+              showFirstLastButtons
+            >
+            </mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="ข้อมูลแพ้ยาทั้งหมด ({{ totalPatient.length }})">
+        <table
+          class="table-striped"
+          mat-table
+          [dataSource]="dataTotal"
+          #sortTotal="matSort"
+          matSort
+          matSortActive=""
+          matSortDirection="asc"
+        >
+          <ng-container matColumnDef="admit_date_en">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              วันที่
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.admit_date_en }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="admit_time_en">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              เวลา
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.admit_time_en }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hn">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              HN
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.hn }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ชื่อ-สกุล
+            </th>
+            <td mat-cell *matCellDef="let element" class="">
+              {{ element.firstName }}
+              {{ element.lastName }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="in_allergy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              แพ้ยาใน รพ. (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.in_allergy }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="out_allergy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              แพ้ยานอก รพ. (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.out_allergy }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="matches">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ตรงกัน (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.matches }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="notmatch">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="">
+              ต้องเพิ่ม (รายการ)
+            </th>
+            <td mat-cell *matCellDef="let element" class="center">
+              {{ element.notmatch }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayTotal"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayTotal; let element"
+            class="pointer"
+            (click)="selectPat(element)"
+          ></tr>
+        </table>
+        <div class="row mid">
+          <div class="col pl-2"></div>
+          <div class="col-md-auto">
+            <mat-paginator
+              #paginatorTotal="matPaginator"
+              [length]="10"
+              [pageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+              showFirstLastButtons
+            >
+            </mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  <!-- <div class="row admit">
+    <div class="col-md-auto">คนไข้รับใหม่ทั้งหมด : {{ allPatient.length }}</div>
+    <div class="col-md-auto">ตรวจสอบแล้ว : {{ numCheck }}</div>
+    <div class="col-md-auto">พบแพ้ยานอก รพ : {{ outAllergy.length }}</div>
+  </div> -->
+</div>
+<!-- 
+<div class="container-fluid" *ngIf="selectPatient">
+  <div class="card p-2 mt-4">
+    <h2>
+      <mat-icon (click)="claer()" class="link">arrow_back_ios</mat-icon>
+      {{ selectPatient.hn }}
+      {{ selectPatient.firstName }}
+      {{ selectPatient.lastName }}
+    </h2>
+    <table class="table table-bordered mt-2">
+      <thead>
+        <tr class="center">
+          <th scope="col">
+            รายการแพ้ยา นอก รพ. ({{ selectPatient.out_drug.length }})
+          </th>
+          <th scope="col">
+            รายการแพ้ยา ใน รพ. ({{ selectPatient.in_drug.length }})
+          </th>
+          <th scope="col">
+            รายการแพ้ยา ที่ตรงกัน ({{ selectPatient.math_drug.length }})
+          </th>
+          <th scope="col">
+            รายการแพ้ยา ที่ต้องเพิ่ม ({{ selectPatient.not_drug.length }})
+          </th>
+          <th scope="col">Causality</th>
+          <th scope="col">Information</th>
+          <th scope="col">Allergy Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div *ngFor="let x of selectPatient.out_drug; let i = index">
+              {{ i + 1 }}. {{ x }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.in_drug; let i = index">
+              {{ i + 1 }}. {{ x }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.math_drug; let i = index">
+              {{ i + 1 }}. {{ x }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.not_drug; let i = index">
+              {{ i + 1 }}. {{ x.fullDrugName }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.not_drug; let i = index">
+              {{ x.causality }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.not_drug; let i = index">
+              {{ x.information }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let x of selectPatient.not_drug; let i = index">
+              {{ x.allergyLevel }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> -->
+
+<div
+  class="modal fade"
+  id="listDrug"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="listDrugLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" *ngIf="selectPatient">
+      <div class="modal-header">
+        <h2 class="modal-title" id="listDrugLabel">
+          {{ selectPatient.hn }}
+          {{ selectPatient.firstName }}
+          {{ selectPatient.lastName }}
+        </h2>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered mt-2">
+          <thead>
+            <tr class="center">
+              <th scope="col">
+                รายการแพ้ยา นอก รพ. ({{ selectPatient.out_drug.length }})
+              </th>
+              <th scope="col">
+                รายการแพ้ยา ใน รพ. ({{ selectPatient.in_drug.length }})
+              </th>
+              <th scope="col">
+                รายการแพ้ยา ที่ตรงกัน ({{ selectPatient.math_drug.length }})
+              </th>
+              <th scope="col">
+                รายการแพ้ยา ที่ต้องเพิ่ม ({{ selectPatient.not_drug.length }})
+              </th>
+              <th scope="col">Causality</th>
+              <th scope="col">Information</th>
+              <th scope="col">Allergy Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div *ngFor="let x of selectPatient.out_drug; let i = index">
+                  {{ i + 1 }}. {{ x }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.in_drug; let i = index">
+                  {{ i + 1 }}. {{ x }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.math_drug; let i = index">
+                  {{ i + 1 }}. {{ x }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.not_drug; let i = index">
+                  {{ i + 1 }}. {{ x.fullDrugName }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.not_drug; let i = index">
+                  {{ x.causality }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.not_drug; let i = index">
+                  {{ x.information }}
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let x of selectPatient.not_drug; let i = index">
+                  {{ x.allergyLevel }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          ปิด
+        </button>
+        <button type="button" class="btn btn-primary">Understood</button>
+      </div> -->
+    </div>
+  </div>
+</div>

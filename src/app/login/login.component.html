@@ -1,42 +1,56 @@
-<div class="container">
-  <div class="login">
-    <div class="card p-4">
-      <div class="center">
-        <div>
-          <h1>Drug Identification</h1>
+<div class="background">
+  <div class="container">
+    <div class="login">
+      <div class="card">
+        <div class="card-body">
+          <div class="center mt-2">
+            <img src="/DrugIdentification/assets/img/logoV1.png" />
+            <!-- <img src="/assets/img/logoV1.png" /> -->
+            <h1>Drug Identification</h1>
+            <h2>โรงพยาบาลมหาราช นครราชสีมา</h2>
+            <!-- <h3>{{ ip }}</h3> -->
+          </div>
+          <form
+            [formGroup]="loginForm"
+            (ngSubmit)="loginSubmit()"
+            style="font-size: 18px"
+          >
+            <div class="mt-4">
+              <label class="form-label"
+                ><mat-icon>account_circle</mat-icon> บัญชีผู้ใช้</label
+              >
+              <input
+                type="text"
+                id="username"
+                formControlName="username"
+                placeholder="username"
+                required
+                class="form-control"
+              />
+            </div>
+            <div class="mt-2">
+              <label for="InputPassword" class="form-label mt-2"
+                ><mat-icon>lock</mat-icon> รหัสผ่าน</label
+              >
+              <input
+                type="password"
+                id="password"
+                formControlName="password"
+                placeholder="password"
+                required
+                class="form-control"
+              />
+            </div>
+            <div class="center mt-4 mb-2">
+              <a class="btn btn-secondary mr-2" href="#/Index"
+                ><mat-icon>home</mat-icon> หน้าหลัก</a
+              >
+              <button type="submit" class="btn btn-primary">
+                <mat-icon>exit_to_app</mat-icon> เข้าสู่ระบบ
+              </button>
+            </div>
+          </form>
         </div>
-        <form
-          [formGroup]="loginForm"
-          (ngSubmit)="loginSubmit()"
-          style="font-size: 18px"
-        >
-          <div class="">
-            <!-- <label for="username">Username</label> -->
-            <input
-              type="text"
-              id="username"
-              formControlName="username"
-              placeholder="username"
-              required
-              class="form-control"
-            />
-            <!-- <label for="password">Password</label> -->
-            <input
-              type="password"
-              id="password"
-              formControlName="password"
-              placeholder="password"
-              required
-              class="form-control mt-4"
-            />
-          </div>
-          <div class="mt-4">
-            <a class="btn btn-secondary mr-2" href="#/Index"
-              ><span class="material-icons"> home </span> หน้าหลัก</a
-            >
-            <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
-          </div>
-        </form>
       </div>
     </div>
   </div>

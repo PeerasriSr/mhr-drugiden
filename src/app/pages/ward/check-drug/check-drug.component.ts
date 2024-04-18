@@ -81,19 +81,19 @@ export class CheckDrugComponent implements OnInit {
     this.formatDate = new Date(new Date().setDate(new Date().getDate()));
     this.dateTH = sessionStorage.getItem('dateTH');
     this.getRequest();
-    setTimeout(() => {
-      this.checkOrderFloorStock();
-    }, 5000);
+    // setTimeout(() => {
+    //   this.checkOrderFloorStock();
+    // }, 5000);
     this.runtime();
   }
 
   ngOnInit(): void {}
 
   runtime() {
-    this.intervalId = setInterval(() => {
-      this.getRequest();
-      this.checkOrderFloorStock();
-    }, 1000 * 30);
+    // this.intervalId = setInterval(() => {
+    //   this.getRequest();
+    //   this.checkOrderFloorStock();
+    // }, 1000 * 30);
   }
 
   checkOrderFloorStock() {

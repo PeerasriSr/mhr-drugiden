@@ -1,0 +1,103 @@
+<ngx-spinner type="timer"></ngx-spinner>
+<div class="container-fluid">
+  <div class="card">
+    <div class="row mid">
+      <div class="col-md-auto">
+        <h2>รายงานการใช้ยา</h2>
+      </div>
+      <div class="col">
+        <mat-form-field class="example-form-field">
+          <!-- <mat-label>เลือกช่วงวันที่</mat-label> -->
+          <mat-date-range-input
+            [formGroup]="campaignOne"
+            [rangePicker]="campaignOnePicker"
+            [comparisonStart]="campaignOne.value.start"
+            [comparisonEnd]="campaignOne.value.end"
+          >
+            <input
+              matStartDate
+              placeholder="วันที่ เริ่มต้น"
+              formControlName="start"
+              (dateChange)="startChange($event)"
+            />
+            <input
+              matEndDate
+              placeholder="สิ้นสุด"
+              formControlName="end"
+              (dateChange)="endChange($event)"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="campaignOnePicker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #campaignOnePicker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <!-- <div class="col right">
+        <button type="button" class="btn btn-primary" (click)="getDrugDispen()">
+          <mat-icon>search</mat-icon> ค้นหา
+        </button>
+      </div> -->
+    </div>
+  </div>
+  <div class="card center" [hidden]="dataOrder">
+    <h2>ไม่พบข้อมูล</h2>
+  </div>
+  <div class="card" [hidden]="!dataOrder">
+    <table
+      class="table-striped"
+      mat-table
+      [dataSource]="dataOrder"
+      #sortOrder="matSort"
+      matSort
+      matSortActive=""
+      matSortDirection="asc"
+      matTableExporter
+      #exporter1="matTableExporter"
+    >
+      <ng-container matColumnDef="DrugName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>รายการยา</th>
+        <td mat-cell *matCellDef="let element" class="">
+          {{ element.DrugName }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="SumDispensedQty">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวน</th>
+        <td mat-cell *matCellDef="let element" class="right">
+          <b>{{ element.SumDispensedQty }}</b> {{ element.DispensedTotalUnit }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayOrder; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayOrder"></tr>
+    </table>
+    <div class="row mid">
+      <div class="col pl-2">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="
+            exporter1.exportTable('xlsx', {
+              fileName: 'รายงานการใช้ยา',
+              sheet: 'sheet1',
+              Props: { Author: 'Talha' }
+            })
+          "
+        >
+          ส่งออกไฟล์
+        </button>
+      </div>
+      <div class="col-md-auto">
+        <mat-paginator
+          #paginOrder="matPaginator"
+          [length]="10"
+          [pageSize]="10"
+          [pageSizeOptions]="[10, 25, 50]"
+          showFirstLastButtons
+        >
+        </mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>
